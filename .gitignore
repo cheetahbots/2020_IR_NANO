@@ -1,0 +1,9 @@
+.dev
+.vscode/.ropeproject
+.vscode/settings.json
+__pycache__
+log/*log*
+package-lock.json
+node_modules
+package.json
+.eslintrc.json

@@ -1,20 +1,17 @@
 # Introduction 
-TODO: Give a short introduction of your project. Let this section explain the objectives or the motivation behind this project. 
+Codes in this repository is deployed to Nano dev board.
+This sub-project serves to define the control strategy for the robot.
 
-# Getting Started
-TODO: Guide users through getting your code up and running on their own system. In this section you can talk about:
-1.	Installation process
-2.	Software dependencies
-3.	Latest releases
-4.	API references
+# Structure
 
-# Build and Test
-TODO: Describe and show how to build your code and run the tests. 
+1. 控制层
+- UI界面，用户交互
 
-# Contribute
-TODO: Explain how other users and developers can contribute to make your code better. 
+2. 策略层
+- 控制算法
 
-If you want to learn more about creating good readme files then refer the following [guidelines](https://docs.microsoft.com/en-us/azure/devops/repos/git/create-a-readme?view=azure-devops). You can also seek inspiration from the below readme files:
-- [ASP.NET Core](https://github.com/aspnet/Home)
-- [Visual Studio Code](https://github.com/Microsoft/vscode)
-- [Chakra Core](https://github.com/Microsoft/ChakraCore)
+3. 硬件层
+- 向Roborio发送指令
+
+4. 系统
+- 占用管理、优先级策略。
