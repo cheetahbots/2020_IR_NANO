@@ -1,36 +1,75 @@
-import time
 import asyncio
-## 基类定义
-class moduleInput:
-    def __init__(self,inputs = []):
-        self.lib = {}
-        for name,pointer in inputs:
-            self.lib[name] = pointer
-    def addItem(self,key,pointer):
-        self.lib[key]=pointer
-    def get(self):
-        return self.lib
-        
-        
+import logging
+import random,math
+from config import CONFIG
 
+# logger = logging.getLogger('main.module')
+# mm = lambda obj,x:logger.info(message(x).setSenderInfo(obj.__class__.__name__,obj.ID).say())
+# 基类定义
+conf = lambda opt:CONFIG('module',opt)
 class module(object):
+    'definition of modules'
     def __init__(self):
         self.priority = 0
-        self.input = moduleInput()
-        self.output = {}
-        self.activated = False
-        print('initialize module')
-    
+        self.__activated = False
+        self.__input = list()
+        self.__output_data = dict()
+        self.__ID = str(random.random())[-int(conf('module_id_length'))-1:-1]
+        self.__logger = logging.getLogger('module.'+self.__class__.__name__+self.__ID)
+        # logger = logging.getLogger('')
+        self.log('instance created')
+
+    @property
+    def input(self):
+        'fetch outputs from all subscribed nodes, and put into one dict. Higher priority overwrite lower ones. Return <list>'
+        result = dict()
+        
+        for pointer in self.__input:
+            data=pointer.output['data']
+            for key in data:
+                if key not in result:
+                    result[key]=data[key]
+ 
+        return result
+
+    @input.setter
+    def input(self, value):
+        self.__input = value
+
+    def addInput(self, pointer):
+        'subscribe to a node whose output to be read'
+        self.__input.append(pointer)
+        self.__input.sort(key=lambda x:x.output['priority'])
+        return self
+
+    @property
+    def output(self):
+        return {"data":self.__output_data,"priority":self.priority}
+
+    @output.setter
+    def output(self, value):
+        self.__output_data = value
+
+    @property
+    def activated(self):
+        return self.__activated
+    @activated.setter
+    def activated(self,val):
+        self.__activated = val
+        if self.activated:
+            self.log('module activated')
+        else:
+            self.log('module deactivated')
+
     async def run(self):
-        print('start run')
         try:
             self.initialize()
+            self.log('initialize success')
             self.activated = True
-            print('initialized, OK')
-            
+
         except:
+            self.log('initialize fail')
             self.activated = False
-            print('initialize fail')
 
         finally:
             if self.activated:
@@ -38,80 +77,83 @@ class module(object):
 
     def initialize(self):
         raise NotImplementedError
+
     def work(self):
         raise NotImplementedError
+
     def repair(self):
         raise NotImplementedError
+
+    def log(self,msg,level = logging.INFO):
+        if level is logging.INFO:
+            self.__logger.info(msg)
+
 
 class counter(module):
     def __init__(self):
         module.__init__(self)
-        pass
+
     def initialize(self):
         return True
-    async def work(self):
-        print("working")
-        inputJSON = self.input.get()
 
-        num = inputJSON["num"]
+    async def work(self):
+        self.log("working")
+        # inputJSON = self.input
+
+        num = 0
 
         while self.activated:
             await asyncio.sleep(0.5)
-            num +=1
-            result={"num":num}
+            num += 1
+            if num > 10:
+                self.activated = False
+            result = {"num": num}
             self.output = result
-            if num>10:
-                self.activated=False
 
+class observer(module):
+    def __init__(self):
+        module.__init__(self)
 
+    def initialize(self):
+        return True
 
-async def main():
+    async def work(self):
+        self.log("working")
 
-    a = counter()
-    a.input.addItem('num',0)
-
-    async def component_thread():
-        print('thread1 start')
-        await a.run()
-
-    async def observer():
-        print('observer start')
-        while True:
-            print(a.output)
+        while self.activated:
             await asyncio.sleep(0.5)
+            inputJSON = self.input
+            num = inputJSON["num"]
+            # num += 1
+            result = {"num": num}
+            self.output = result
+            print(self.output)
+            # if num > 10:
+            #     self.activated = False
 
-    component_thread = asyncio.create_task(
-        component_thread())
-    observer_thread = asyncio.create_task(
-        observer())
-
-    await component_thread
-    await observer_thread
-    
-asyncio.run(main())
-
-
-        
-
-## control子类定义
+# control子类定义
 class control(module):
     def __init__(self):
         pass
 
-## strategy子类定义
+# strategy子类定义
+
+
 class strategy(module):
     def __init__(self):
         pass
 
-## hardware子类定义
+# hardware子类定义
+
+
 class hardware(module):
     def __init__(self):
         pass
 
 # I/O组件
 
-## sensor
+# sensor
 
 ## controller / joystick
 
-## output
+# output
