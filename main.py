@@ -3,9 +3,9 @@ import logging.config
 
 import asyncio
 from strategy.test import counter, observer
-from system import system,threadManager
+from system import system, threadManager
 
-##Entry File
+# Entry File
 
 # 入口文件
 # 读取config
@@ -13,7 +13,7 @@ from system import system,threadManager
 
 
 if __name__ == "__main__":
-    logging.config.fileConfig('logging.conf') 
+    logging.config.fileConfig('logging.conf')
     logger = logging.getLogger('main')
     logger.info('system start')
 
@@ -22,12 +22,12 @@ if __name__ == "__main__":
         FRC_sys = system(threadM)
 
         tasks = list()
-        for future in [threadM.run(),FRC_sys.run()]:
+        for future in [threadM.run(), FRC_sys.run()]:
             tasks.append(asyncio.create_task(future))
         for task in tasks:
             await task
 
     asyncio.run(initiate())
-    
+
     logger.info('system shut down')
     pass
