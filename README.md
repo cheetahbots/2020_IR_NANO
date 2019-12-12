@@ -15,3 +15,11 @@ This sub-project serves to define the control strategy for the robot.
 
 4. 系统
 - 占用管理、优先级策略。
+
+# Todo
+
+- UI
+- 通讯
+- 模块log, benchmarking
+- 模块连接兼容性
+- 异常处理
