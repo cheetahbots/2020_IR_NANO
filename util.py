@@ -17,7 +17,7 @@ class loggable():
             self.__logger.info(msg)
 
 
-class activiable(loggable):
+class activatable(loggable):
     '能够设置模块的activated状态，继承loggable'
 
     def __init__(self):

@@ -1,11 +1,10 @@
 import asyncio
-from module import dynamicInput, reactiveInput, moduleDynamic, moduleReactive
+from module import moduleDynamic, moduleReactive
 
 
 class counter(moduleDynamic):
     def __init__(self):
         moduleDynamic.__init__(self)
-        dynamicInput.__init__(self)
 
     def initialize(self):
         return True
@@ -24,17 +23,16 @@ class counter(moduleDynamic):
             self.output = result
 
 
-class observer(moduleDynamic, dynamicInput):
+class observer(moduleDynamic):
     def __init__(self):
         moduleDynamic.__init__(self)
-        dynamicInput.__init__(self)
 
     async def work(self):
         self.log("working")
 
         while self.activated:
             await asyncio.sleep(0.5)
-            inputJSON = self.input
+            inputJSON = await self.input
             num = inputJSON["num"]
             # num += 1
             result = {"num": num}
@@ -47,7 +45,6 @@ class observer(moduleDynamic, dynamicInput):
 class numberGenerator(moduleReactive):
     def __init__(self):
         moduleReactive.__init__(self)
-        reactiveInput.__init__(self)
 
     async def work(self):
         self.log("working")
@@ -55,10 +52,9 @@ class numberGenerator(moduleReactive):
         return {'num': 1}
 
 
-class numberAdder(moduleReactive, dynamicInput):
+class numberAdder(moduleReactive):
     def __init__(self):
         moduleReactive.__init__(self)
-        dynamicInput.__init__(self)
 
     async def work(self):
         inputJSON = await self.input

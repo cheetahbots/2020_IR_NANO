@@ -1,9 +1,9 @@
 import asyncio
-from util import activiable
+from util import activatable
 import random
 import math
 from config import CONFIG
-
+import logging
 # logger = logging.getLogger('main.module')
 # mm = lambda obj,x:logger.info(message(x).setSenderInfo(obj.__class__.__name__,obj.ID).say())
 # 基类定义
@@ -12,43 +12,15 @@ from config import CONFIG
 def conf(opt): return CONFIG('module', opt)
 
 
-class module(activiable):
-    '所有模块的基类.'
-
-    def __init__(self):
-        activiable.__init__(self)
-        self.priority = 0
-        self.log('instance created')
-        # self.isDynamic = False
-
-    def run(self):
-        raise NotImplementedError
-
-    def initialize(self):
-        return True
-
-    def work(self):
-        raise NotImplementedError
-
-
 class dynamicInput(object):
     '订阅dynamic模块，拉取其output属性作为模块输入.'
 
     def __init__(self):
         self.__input = list()
 
-    @property
-    async def input(self):
+    def fetchOutput(self):
         'fetch outputs from all subscribed nodes, and put into one dict. Higher priority overwrite lower ones. Return <dict>'
-        result = dict()
-
-        for pointer in self.__input:
-            data = pointer.output['data']
-            for key in data:
-                if key not in result:
-                    result[key] = data[key]
-
-        return result
+        return [pointer.output for pointer in self.__input]
 
     def addInput(self, pointer):
         'subscribe to a dynamic node whose output to be read'
@@ -56,7 +28,6 @@ class dynamicInput(object):
             raise Exception(
                 'input subscription must be subclass of moduleDynamic')
         self.__input.append(pointer)
-        self.__input.sort(key=lambda x: x.output['priority'])
         return self
 
 
@@ -66,31 +37,72 @@ class reactiveInput(object):
     def __init__(self):
         self.__input = list()
 
-    @property
-    async def input(self):
+    async def fetchOutput(self):
         'fetch outputs from all subscribed nodes, and put into one dict. Higher priority overwrite lower ones. Return <dict>'
-        result = dict()
-        tasks = list()
-        datas = list()
+        outputs = list()
         # 向每一个上级节点请求数据
+        tasks = list()
         for future in [i.run() for i in self.__input]:
             tasks.append(asyncio.create_task(future))
         for task in tasks:
-            datas.append(await task)
-        # 整理所有数据
-        datas.sort(key=lambda x: x['priority'])
-        for data in [d['data'] for d in datas]:
+            outputs.append(await task)
+        return outputs
+
+    def addInput(self, pointer):
+        'subscribe to a reactive node whose output to be read'
+        if pointer.isDynamic:
+            raise Exception(
+                'input subscription must be subclass of moduleDynamic')
+        self.__input.append(pointer)
+        return self
+
+class moduleInput(object):
+    def __init__(self):
+        self.dynamHandler = None
+        self.reactHandler = None
+
+    @property
+    async def input(self):
+        result = dict()
+        outputs = await self.__fetchOutput()
+
+        outputs.sort(key=lambda x: x['priority'])
+        for output in outputs:
+            data = output['data']
             for key in data:
                 if key not in result:
                     result[key] = data[key]
         return result
 
+    async def __fetchOutput(self):
+        outputs = list()
+        if self.dynamHandler != None:
+            outputs.extend(self.dynamHandler.fetchOutput())
+        if self.reactHandler != None:
+            outputs.extend(await self.reactHandler.fetchOutput())
+        return outputs
+
     def addInput(self, pointer):
-        'subscribe to a reactive node whose output to be read'
-        # TODO 类型检查
-        self.__input.append(pointer)
+        '根据连接的模块自动惰性加载DynamicInput或ReactiveInput'
+        if not hasattr(pointer,'isDynamic'):
+            raise Exception('input subscription must be a module')
+        else:
+            if pointer.isDynamic:
+                self.__addDynamInput(pointer)
+            else:
+                self.__addReactInput(pointer)
         return self
 
+    def __addDynamInput(self,pointer):
+        if self.dynamHandler ==None:
+            self.dynamHandler = dynamicInput()
+        self.dynamHandler.addInput(pointer)
+    def __addReactInput(self,pointer):
+        if self.reactHandler ==None:
+            self.reactHandler = reactiveInput()
+        self.reactHandler.addInput(pointer)
+
+    
 
 class moduleOutput(object):
     '在模块上建立output属性供其他模块读取.'
@@ -108,18 +120,38 @@ class moduleOutput(object):
     def output(self, value):
         self.__output_data = value
 
+class module(activatable, moduleInput):
+    '所有模块的基类.'
+
+    def __init__(self):
+        activatable.__init__(self)
+        moduleInput.__init__(self)
+        self.priority = 0
+        self.log('instance created')
+
+    def run(self):
+        raise NotImplementedError
+
+    # def addInput(self,item):
+    #     moduleInput.__init__(self)
+    #     self.addInput(moduleInput)
+
+    def initialize(self):
+        return True
+
+    def work(self):
+        raise NotImplementedError
 
 class moduleDynamic(module, moduleOutput):
     'dynamic模块中的worker方法是单独的线程，循环执行以更新output.'
-    # dynamic模块必须有output，input可以是任何类别，甚至可以不挂载input。
 
     def __init__(self):
         module.__init__(self)
         moduleOutput.__init__(self)
-        # self.isDynamic = True
 
     async def run(self):
         try:
+            self.log('initialize...')
             self.initialize()
             self.log('initialize success')
             self.activated = True
@@ -128,9 +160,10 @@ class moduleDynamic(module, moduleOutput):
             self.log('initialize fail')
             self.activated = False
 
-        finally:
-            if self.activated:
-                await self.work()
+        if self.activated:
+            self.log('work...')
+            await self.work()
+            self.log('stop work')
 
     @property
     def isDynamic(self):
@@ -139,7 +172,6 @@ class moduleDynamic(module, moduleOutput):
 
 class moduleReactive(module):
     'reactive模块中的worker方法返回异步结果.'
-    # reactive模块不需要output，input也可以是任何类别，甚至可以不挂载input。
 
     def __init__(self):
         module.__init__(self)
@@ -147,6 +179,7 @@ class moduleReactive(module):
     async def run(self):
         if not self.activated:
             try:
+                self.log('initialize...')
                 self.initialize()
                 self.log('initialize success')
                 self.activated = True

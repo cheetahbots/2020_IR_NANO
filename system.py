@@ -1,24 +1,22 @@
-# 信号优先级管理、模块占用管理
-
-# 异常处理和稳定性
 import asyncio
 from setup import SETUP_MODULES
-from util import activiable, loggable
+from util import activatable, loggable
 from config import CONFIG
 
 
 def conf(opt): return CONFIG('system', opt)
 
 
-class threadManager(activiable):
+class threadManager(activatable):
     'initiate a thread without blocking system thread.'
 
     def __init__(self, futures):
-        activiable.__init__(self)
+        activatable.__init__(self)
+        self.activated = True
+        
         self.futures = futures
         self.son = None
         self.occupied = False
-        self.activated = True
 
     async def run(self):
         while len(self.futures) == 0:
@@ -64,7 +62,7 @@ class system(loggable):
         self.log('start reactive modules')
         if not self.__outputHooker == None:
             # print(await self.__outputHooker.run())
-            for i in range(20):
+            for _ in range(20):
                 await asyncio.sleep(0.5)
                 print(await self.__outputHooker.run())
 
