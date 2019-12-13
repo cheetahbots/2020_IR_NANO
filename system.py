@@ -2,6 +2,7 @@ import asyncio
 from setup import SETUP_MODULES
 from util import activatable, loggable
 from config import CONFIG
+from network import socketConnection
 
 
 def conf(opt): return CONFIG('system', opt)
@@ -19,11 +20,11 @@ class threadManager(activatable):
         self.occupied = False
 
     async def run(self):
+        self.log('no thread attached, pending')
         while len(self.futures) == 0:
             if not self.activated:
                 return
-            self.log('no thread attached, pending')
-            await asyncio.sleep(int(conf('threadLoadCycle')))
+            await asyncio.sleep(float(conf('threadLoadCycle')))
         self.son = threadManager(futures=[])
         self.occupied = True
         self.log('begin thread execution')
@@ -49,12 +50,21 @@ class system(loggable):
         loggable.__init__(self)
         self.__threadM = threadM
         self.__outputHooker = None
+        # Init Modules
         self.__inst_list = SETUP_MODULES(self)
         self.__recur_inst_list = [
             ins for ins in self.__inst_list if ins.isDynamic]
         self.__statc_inst_list = [
             ins for ins in self.__inst_list if not ins.isDynamic]
         self.log('system initiate')
+        # Init Network
+        self.__socketHandler = socketConnection(self)
+        for ins in self.__inst_list:
+            if ins.__class__.__name__ == "socketData":
+                self.__socketHandler.attachDataListener(ins)
+        self.__recur_inst_list.append(self.__socketHandler)
+                
+
 
     async def run(self):
         self.log('start dynamic modules')
@@ -62,11 +72,12 @@ class system(loggable):
         self.log('start reactive modules')
         if not self.__outputHooker == None:
             # print(await self.__outputHooker.run())
-            for _ in range(20):
+            # for _ in range(20):
+            while True:
                 await asyncio.sleep(0.5)
                 print(await self.__outputHooker.run())
 
-        await self.shutdown()
+        # await self.shutdown()
 
     async def attachThread(self, futures):
         self.__threadM = await self.__threadM.available()

@@ -1,5 +1,6 @@
 
 from strategy.test import counter, observer, numberGenerator, numberAdder
+from sensor.network import networkTable,socketData
 def SETUP_MODULES(sys):
     """
     Config module instances and connection
@@ -19,11 +20,15 @@ def SETUP_MODULES(sys):
     #
     "***EDIT BELOW!***"
     
+    data = socketData()
+    data.priority = 5
+    use(data)
+
     ct1 = counter()
     ct1.priority = 1
-    use(ct1)
+    # use(ct1)
 
-    obs1 = observer().addInput(ct1)
+    obs1 = observer().addInput(data)
     obs1.priority = 2
     use(obs1)
 
@@ -33,8 +38,12 @@ def SETUP_MODULES(sys):
     numAdd = numberAdder()
     numAdd.priority = 2
     numAdd.addInput(ct1)
-    use(numAdd)
+    # use(numAdd)
 
-    sys.addInput(numAdd)
+    # NW = networkTable()
+    # use(NW)
+
+
+    # sys.addInput(numAdd)
 
     return setup_modules

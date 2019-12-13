@@ -1,10 +1,9 @@
 import asyncio
-from module import dynamicInput, reactiveInput, moduleDynamic, moduleReactive,dynamicInput
+from module import moduleDynamic, moduleReactive
 
 class networkTable(moduleDynamic):
     def __init__(self):
         moduleDynamic.__init__(self)
-        dynamicInput.__init__(self)
 
     def initialize(self):
         return True
@@ -18,19 +17,22 @@ class networkTable(moduleDynamic):
             
             self.output = None
     
-class socketConnection(moduleDynamic):
+class socketData(moduleReactive):
     def __init__(self):
         moduleDynamic.__init__(self)
-        dynamicInput.__init__(self)
+        # self.__output = None
+        self.__outputData = dict()
+        if not hasattr(self, 'priority'):
+            self.priority = 0
 
-    def initialize(self):
-        # Build WebSocket Connection
-        return True
+    @property
+    def output(self):
+        return {"data": self.__outputData, "priority": self.priority}
+
+    @output.setter
+    def output(self, value):
+        
+        self.__outputData = value
 
     async def work(self):
-        while self.activated:
-            await asyncio.sleep(0.5)
-
-            # scan for incoming data
-            
-            self.output = None
+        return self.output
