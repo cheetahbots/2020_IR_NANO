@@ -31,13 +31,23 @@ class observer(moduleDynamic):
         self.log("working")
 
         while self.activated:
-            await asyncio.sleep(0.5)
+            await asyncio.sleep(0.2)
             inputJSON = await self.input
-            num = inputJSON["num"]
-            # num += 1
-            result = {"num": num}
-            self.output = result
-            print(self.output)
+            print(inputJSON)
+            if 'num' in inputJSON:
+                num = inputJSON["num"]
+                # num += 1
+                result = {"num": num}
+                self.output = result
+                print(self.output)
+            elif 'x' in inputJSON:
+                x = inputJSON["x"]
+                # num += 1
+                result = {"x": x}
+                self.output = result
+                print(self.output)
+            else:
+                self.output = None
             # if num > 10:
             #     self.activated = False
 

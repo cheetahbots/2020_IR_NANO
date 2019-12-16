@@ -1,6 +1,7 @@
 
 from strategy.test import counter, observer, numberGenerator, numberAdder
 from sensor.network import networkTable,socketData
+from hardware.secondOrderSystem import springMass
 def SETUP_MODULES(sys):
     """
     Config module instances and connection
@@ -20,24 +21,24 @@ def SETUP_MODULES(sys):
     #
     "***EDIT BELOW!***"
     
-    data = socketData()
-    data.priority = 5
-    use(data)
+    # data = socketData()
+    # data.priority = 5
+    # use(data)
 
-    ct1 = counter()
-    ct1.priority = 1
-    # use(ct1)
+    SM = springMass()
+    use(SM)
+    
 
-    obs1 = observer().addInput(data)
-    obs1.priority = 2
-    use(obs1)
+    # obs1 = observer().addInput(SM)
+    # obs1.priority = 2
+    # use(obs1)
 
     # numGen = numberGenerator()
     # use(numGen)
 
-    numAdd = numberAdder()
-    numAdd.priority = 2
-    numAdd.addInput(ct1)
+    # numAdd = numberAdder()
+    # numAdd.priority = 2
+    # numAdd.addInput(ct1)
     # use(numAdd)
 
     # NW = networkTable()

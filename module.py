@@ -108,17 +108,17 @@ class moduleOutput(object):
     '在模块上建立output属性供其他模块读取.'
 
     def __init__(self):
-        self.__output_data = dict()
+        self.__outputData = dict()
         if not hasattr(self, 'priority'):
             self.priority = 0
 
     @property
     def output(self):
-        return {"data": self.__output_data, "priority": self.priority}
+        return {"data": self.__outputData, "priority": self.priority}
 
     @output.setter
     def output(self, value):
-        self.__output_data = value
+        self.__outputData = value
 
 class module(activatable, moduleInput):
     '所有模块的基类.'
