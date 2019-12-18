@@ -1,16 +1,8 @@
+import asyncio
 import logging
 import logging.config
 
-import asyncio
-from strategy.test import counter, observer
-from system import system, threadManager
-
-# Entry File
-
-# 入口文件
-# 读取config
-# 实例化所有模块
-
+from system.engine.system import system, threadManager
 
 if __name__ == "__main__":
     logging.config.fileConfig('logging.conf')

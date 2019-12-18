@@ -1,12 +1,9 @@
 import asyncio
-from util import activatable
-import random
 import math
-from config import CONFIG
-import logging
-# logger = logging.getLogger('main.module')
-# mm = lambda obj,x:logger.info(message(x).setSenderInfo(obj.__class__.__name__,obj.ID).say())
-# 基类定义
+import random
+
+from .config import CONFIG
+from .util import activatable
 
 
 def conf(opt): return CONFIG('module', opt)
@@ -56,6 +53,7 @@ class reactiveInput(object):
         self.__input.append(pointer)
         return self
 
+
 class moduleInput(object):
     def __init__(self):
         self.dynamHandler = None
@@ -84,7 +82,7 @@ class moduleInput(object):
 
     def addInput(self, pointer):
         '根据连接的模块自动惰性加载DynamicInput或ReactiveInput'
-        if not hasattr(pointer,'isDynamic'):
+        if not hasattr(pointer, 'isDynamic'):
             raise Exception('input subscription must be a module')
         else:
             if pointer.isDynamic:
@@ -93,16 +91,16 @@ class moduleInput(object):
                 self.__addReactInput(pointer)
         return self
 
-    def __addDynamInput(self,pointer):
-        if self.dynamHandler ==None:
+    def __addDynamInput(self, pointer):
+        if self.dynamHandler == None:
             self.dynamHandler = dynamicInput()
         self.dynamHandler.addInput(pointer)
-    def __addReactInput(self,pointer):
-        if self.reactHandler ==None:
+
+    def __addReactInput(self, pointer):
+        if self.reactHandler == None:
             self.reactHandler = reactiveInput()
         self.reactHandler.addInput(pointer)
 
-    
 
 class moduleOutput(object):
     '在模块上建立output属性供其他模块读取.'
@@ -119,6 +117,7 @@ class moduleOutput(object):
     @output.setter
     def output(self, value):
         self.__outputData = value
+
 
 class module(activatable, moduleInput):
     '所有模块的基类.'
@@ -141,6 +140,10 @@ class module(activatable, moduleInput):
 
     def work(self):
         raise NotImplementedError
+
+    async def sleep(self, t):
+        await asyncio.sleep(t)
+
 
 class moduleDynamic(module, moduleOutput):
     'dynamic模块中的worker方法是单独的线程，循环执行以更新output.'

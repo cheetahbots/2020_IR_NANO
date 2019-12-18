@@ -1,5 +1,5 @@
-import asyncio
-from module import moduleDynamic, moduleReactive
+from ..default import *
+
 
 class networkTable(moduleDynamic):
     def __init__(self):
@@ -10,13 +10,13 @@ class networkTable(moduleDynamic):
 
     async def work(self):
         while self.activated:
-            await asyncio.sleep(0.5)
-
+            await self.sleep(0.5)
 
             # query network table
-            
+
             self.output = None
-    
+
+
 class socketData(moduleReactive):
     def __init__(self):
         moduleDynamic.__init__(self)
@@ -31,7 +31,7 @@ class socketData(moduleReactive):
 
     @output.setter
     def output(self, value):
-        
+
         self.__outputData = value
 
     async def work(self):

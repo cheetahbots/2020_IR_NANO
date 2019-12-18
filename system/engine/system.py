@@ -1,8 +1,11 @@
 import asyncio
-from setup import SETUP_MODULES
-from util import activatable, loggable
-from config import CONFIG
-from network import socketConnection
+
+from src.setup import SETUP_MODULES
+
+from .config import CONFIG
+from .util import activatable, loggable
+
+# from .network import socketConnection
 
 
 def conf(opt): return CONFIG('system', opt)
@@ -14,7 +17,7 @@ class threadManager(activatable):
     def __init__(self, futures):
         activatable.__init__(self)
         self.activated = True
-        
+
         self.futures = futures
         self.son = None
         self.occupied = False
@@ -58,13 +61,11 @@ class system(loggable):
             ins for ins in self.__inst_list if not ins.isDynamic]
         self.log('system initiate')
         # Init Network
-        self.__socketHandler = socketConnection(self)
-        for ins in self.__inst_list:
-            if ins.__class__.__name__ == "socketData":
-                self.__socketHandler.attachDataListener(ins)
-        self.__recur_inst_list.append(self.__socketHandler)
-                
-
+        # self.__socketHandler = socketConnection(self)
+        # for ins in self.__inst_list:
+        #     if ins.__class__.__name__ == "socketData":
+        #         self.__socketHandler.attachDataListener(ins)
+        # self.__recur_inst_list.append(self.__socketHandler)
 
     async def run(self):
         self.log('start dynamic modules')

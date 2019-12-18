@@ -1,5 +1,4 @@
-import asyncio
-from module import moduleDynamic, moduleReactive
+from src.default import *
 
 
 class counter(moduleDynamic):
@@ -15,7 +14,7 @@ class counter(moduleDynamic):
         num = 0
 
         while self.activated:
-            await asyncio.sleep(0.5)
+            await self.sleep(0.5)
             num += 1
             # if num > 10:
             #     self.activated = False
@@ -31,7 +30,7 @@ class observer(moduleDynamic):
         self.log("working")
 
         while self.activated:
-            await asyncio.sleep(0.2)
+            await self.sleep(0.2)
             inputJSON = await self.input
             print(inputJSON)
             if 'num' in inputJSON:
@@ -58,7 +57,7 @@ class numberGenerator(moduleReactive):
 
     async def work(self):
         self.log("working")
-        await asyncio.sleep(5)
+        await self.sleep(5)
         return {'num': 1}
 
 
