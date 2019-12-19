@@ -176,3 +176,132 @@ ReactDOM.render(
 );
 
 */
+
+/*
+const ShimmerElementsGroup = window.Fabric.ShimmerElementsGroup
+const Shimmer = window.Fabric.Shimmer
+const Fabric = window.Fabric
+*/
+
+/*
+var videoblank = React.createClass({
+  _getCustomElementsExampleOne: function () {
+    return (
+      <div
+        // tslint:disable-next-line:jsx-ban-props
+        style={{ display: 'flex' }}
+      >
+        <ShimmerElementsGroup
+          shimmerElements={[
+            { type: ShimmerElementType.line, width: 40, height: 40 },
+            { type: ShimmerElementType.gap, width: 10, height: 40 }
+          ]}
+        />
+        <ShimmerElementsGroup
+          flexWrap={true}
+          shimmerElements={[
+            { type: ShimmerElementType.line, width: 300, height: 10 },
+            { type: ShimmerElementType.line, width: 200, height: 10 },
+            { type: ShimmerElementType.gap, width: 100, height: 20 }
+          ]}
+        />
+      </div>
+    );
+  },
+  render: function () {
+    return (
+      <Fabric>
+        Using ShimmerElementsGroup component to build complex structures of the placeholder you need.
+        <Shimmer customElementsGroup={this._getCustomElementsExampleOne()} width={350} />
+        <Shimmer customElementsGroup={this._getCustomElementsExampleOne()} width={550} />
+        <Shimmer customElementsGroup={this._getCustomElementsExampleOne()} width={'90%'} />
+      </Fabric>
+    )
+  }
+});
+
+ReactDOM.render(
+  <videoblank />,
+  document.getElementById('content')
+);
+*/
+
+
+
+
+var ShimmerBasicExample = React.createClass({
+  render: function () {
+    return (
+      <Fabric>
+        Basic Shimmer with no elements provided. It defaults to a line of 16px height.
+      <Shimmer />
+        <Shimmer width="75%" />
+        <Shimmer width="50%" />
+        Basic Shimmer with elements provided.
+      <Shimmer
+          shimmerElements={[
+            { type: ShimmerElementType.circle },
+            { type: ShimmerElementType.gap, width: '2%' },
+            { type: ShimmerElementType.line }
+          ]}
+        />
+        <Shimmer
+          shimmerElements={[
+            { type: ShimmerElementType.circle, height: 24 },
+            { type: ShimmerElementType.gap, width: '2%' },
+            { type: ShimmerElementType.line, height: 16, width: '20%' },
+            { type: ShimmerElementType.gap, width: '5%' },
+            { type: ShimmerElementType.line, height: 16, width: '20%' },
+            { type: ShimmerElementType.gap, width: '10%' },
+            { type: ShimmerElementType.line, height: 16, width: '15%' },
+            { type: ShimmerElementType.gap, width: '10%' },
+            { type: ShimmerElementType.line, height: 16 }
+          ]}
+        />
+        <Shimmer
+          width={'70%'}
+          shimmerElements={[
+            { type: ShimmerElementType.circle, height: 24 },
+            { type: ShimmerElementType.gap, width: '2%' },
+            { type: ShimmerElementType.line, height: 16, width: '20%' },
+            { type: ShimmerElementType.gap, width: '5%' },
+            { type: ShimmerElementType.line, height: 16, width: '20%' },
+            { type: ShimmerElementType.gap, width: '10%' },
+            { type: ShimmerElementType.line, height: 16, width: '15%' },
+            { type: ShimmerElementType.gap, width: '10%' },
+            { type: ShimmerElementType.line, height: 16 }
+          ]}
+        />
+        Variations of vertical alignment for Circles and Lines.
+      <Shimmer
+          shimmerElements={[
+            { type: ShimmerElementType.circle },
+            { type: ShimmerElementType.gap, width: '2%' },
+            { type: ShimmerElementType.circle, height: 15, verticalAlign: 'top' },
+            { type: ShimmerElementType.gap, width: '2%' },
+            { type: ShimmerElementType.line, verticalAlign: 'bottom', width: '20%' },
+            { type: ShimmerElementType.gap, width: '2%' },
+            { type: ShimmerElementType.line, height: 5, verticalAlign: 'top', width: '20%' },
+            { type: ShimmerElementType.gap, width: '2%' },
+            { type: ShimmerElementType.line, height: 16, width: '15%' },
+            { type: ShimmerElementType.gap, width: '2%' },
+            { type: ShimmerElementType.line, height: 10, verticalAlign: 'bottom' }
+          ]}
+        />
+      </Fabric>
+    );
+  }
+})
+
+const ShimmerBasicExampleWrapper = React.createClass({
+  render: function() {
+    return (
+      <div className="commentBox">
+        <h1>Comments</h1>
+        <ShimmerBasicExample/>
+      </div>
+    );
+  }
+
+});
+ReactDOM.render(<ShimmerBasicExampleWrapper/>, document.getElementById('content'))
