@@ -1,15 +1,43 @@
-/**
- * This file provided by Facebook is for non-commercial testing and evaluation
- * purposes only. Facebook reserves all rights not expressly granted.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
- * FACEBOOK BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
- * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */
 
+/*
+// Create WebSocket connection.
+const socket = new WebSocket('ws://localhost:80/api');
+
+// Connection opened
+socket.addEventListener('open', function (event) {
+    socket.send('Hello Server!');
+});
+
+// Listen for messages
+socket.addEventListener('message', function (event) {
+    console.log('Message from server ', event.data);
+});
+
+window.onbeforeunload = function() {
+  socket.onclose = function () {}; // disable onclose handler first
+  socket.close()
+};
+
+var Head = React.createClass({
+  render: function() {
+    return (
+      
+    );
+  }
+});
+
+
+
+
+
+ReactDOM.render(
+  <Head/>,
+  document.getElementById('head')
+);
+
+
+
+/*
 var Comment = React.createClass({
   rawMarkup: function() {
     var md = new Remarkable();
@@ -141,7 +169,7 @@ var CommentForm = React.createClass({
   }
 });
 
-/*
+
 ReactDOM.render(
   <CommentBox url="/api/comments" pollInterval={2000} />,
   document.getElementById('content')

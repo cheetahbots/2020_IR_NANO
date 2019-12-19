@@ -18,8 +18,8 @@ async def static_file(path, request_headers):
 
 
 async def echo(websocket, path):
-    async for message in websocket:
-        await websocket.send('From server'+message)
+    message = await websocket.recv()
+    await websocket.send('From server ' + message)
 
 web_server = websockets.serve(
     echo, "localhost", 80, process_request=static_file
