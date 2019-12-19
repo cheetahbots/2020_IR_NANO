@@ -41,6 +41,7 @@ class springMass(moduleDynamic):
         self.log("working")
 
         while self.activated:
+            await self.sleep(0)
             inputJSON = await self.input
             if 'u' in inputJSON:
                 u = inputJSON["u"]
