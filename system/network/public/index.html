@@ -3,31 +3,20 @@
 
 <head>
   <meta charset="utf-8">
-  <title>React Tutorial</title>
-  <!-- Not present in the tutorial. Just for basic styling. -->
-
+  <title>Cheetahbots 8015</title>
+  <!-- Load scripts and css -->
+  <script src="js/babel.min.js"></script>
+  <script src="js/jquery-3.4.1.slim.min.js"></script>
+  <script src="js/jquery.min.js"></script>
+  <script src="js/popper.min.js"></script>
+  <script src="js/react.development.js"></script>
+  <script src="js/react-dom.development.js"></script>
+  <script src="js/remarkable.min.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+  <script src="js/office-ui-fabric-react.js"></script>
   <link rel="stylesheet" href="css/base.css" />
-  <script src="https://unpkg.com/react@15.3.0/dist/react.js"></script>
-  <script src="https://unpkg.com/react-dom@15.3.0/dist/react-dom.js"></script>
-  <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
-  <script src="https://unpkg.com/jquery@3.1.0/dist/jquery.min.js"></script>
-  <script src="https://unpkg.com/remarkable@1.7.1/dist/remarkable.min.js"></script>
-  <script src="//unpkg.com/office-ui-fabric-react@7/dist/office-ui-fabric-react.js"></script>
-  <link rel="stylesheet"
-    href="https://static2.sharepointonline.com/files/fabric/office-ui-fabric-core/11.0.0/css/fabric.min.css" />
-
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
-    integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-  <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
-    integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous">
-  </script>
-  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
-    integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous">
-  </script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
-    integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous">
-  </script>
-
+  <link rel="stylesheet" href="css/bootstrap.min.css" />
+  <link rel="stylesheet" href="css/fabric.min.css" />
 </head>
 
 <body>
@@ -35,14 +24,13 @@
     <div class="ms-Grid-row ms-depth-8 " style="height:100px">
       <div class="ms-Grid-col ms-lg2">
         <div style="margin-left:25px;max-width:100px;">
-          <img src="/logo.png" width="75px"
+          <img src="./logo.png" width="75px"
             style="margin-top: 12.5px; border-radius: 5px; box-shadow: 0 3.2px 7.2px 0 rgba(0,0,0,.132), 0 0.6px 1.8px 0 rgba(0,0,0,.108);"></img>
         </div>
       </div>
-
       <div class="ms-Grid-col ms-lg2"></div>
-      <div class="ms-Grid-col ms-lg4 justify-content-center" id="header_game_period">
-        <div style="margin:12.5px auto;width: auto;text-align: center;">
+      <div class="ms-Grid-col ms-lg4 justify-content-center" >
+        <div style="margin:12.5px auto;width: auto;text-align: center;" id="header_game_period">
           <!--
           <i class="ms-Icon ms-Icon--TriggerAuto" aria-hidden="true" style="transform: scale(3);color:#0078d4"></i>
           <span>&nbsp;&nbsp;&nbsp;&nbsp;</span>
@@ -55,17 +43,16 @@
         </div>
       </div>
       <div class="ms-Grid-col ms-lg2"></div>
-      <div class="ms-Grid-col ms-lg2" id="header_status">
-        <div style="margin:31.5px auto;width: auto;text-align: center;">
-          <i class="ms-Icon ms-Icon--InternetSharing" aria-hidden="true" style="transform: scale(2);color:#107c10"></i>
-          <span>&nbsp;&nbsp;&nbsp;&nbsp;</span>
-          <span style="font-size: 25px;font-weight: 600;">50 ms</span>
-        </div>
+      <div class="ms-Grid-col ms-lg2" id="header_time_delay">
       </div>
     </div>
+    <div class="ms-Grid-row">
+      <div class="ms-Grid-col ms-lg4" id="video1"></div>
+      <div class="ms-Grid-col ms-lg4" id="video2"></div>
+      <div class="ms-Grid-col ms-lg4" id="robot"></div>
+      
+    </div>
   </div>
-  <div id="content">Ready to go</div>
   <script type="text/babel" src="js/main.js"></script>
 </body>
-
 </html>
