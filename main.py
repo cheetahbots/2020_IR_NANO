@@ -3,7 +3,6 @@ import logging
 import logging.config
 
 from system.engine.system import system, threadManager
-from system.network.server import web_server
 
 if __name__ == "__main__":
     logging.config.fileConfig('logging.conf')
@@ -20,8 +19,6 @@ if __name__ == "__main__":
         for task in tasks:
             await task
 
-    asyncio.get_event_loop().run_until_complete(web_server)
-    asyncio.get_event_loop().run_forever()
     asyncio.run(initiate())
 
     logger.info('system shut down')

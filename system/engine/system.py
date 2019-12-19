@@ -4,6 +4,7 @@ from src.setup import SETUP_MODULES
 
 from .config import CONFIG
 from .util import activatable, loggable
+from ..network.server import webServer
 
 # from .network import socketConnection
 
@@ -66,6 +67,11 @@ class system(loggable):
         #     if ins.__class__.__name__ == "socketData":
         #         self.__socketHandler.attachDataListener(ins)
         # self.__recur_inst_list.append(self.__socketHandler)
+        self.__socketHandler = webServer(self)
+        for ins in self.__inst_list:
+            if ins.__class__.__name__ == "socketData":
+                self.__socketHandler.attachDataListener(ins)
+        self.__recur_inst_list.append(self.__socketHandler)
 
     async def run(self):
         self.log('start dynamic modules')
