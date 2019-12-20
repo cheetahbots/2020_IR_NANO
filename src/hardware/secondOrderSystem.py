@@ -49,7 +49,7 @@ class springMass(moduleDynamic):
                 u = 0
             self.step(u)
             xp, x = self.state
-            print((math.trunc(100*x)/100, math.trunc(100*xp)/100))
+            # print((math.trunc(100*x)/100, math.trunc(100*xp)/100))
             # num = (math.trunc(10*x)+50)//5
             # print('\n\n\n\n\n')
             # print('|'*num)

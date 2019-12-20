@@ -29,31 +29,14 @@ const wrapperClass = mergeStyles({
         }
     }
 });
+
 class VideoBlank extends React.Component {
     render() {
         return (
             <Fabric className={wrapperClass}>
                 <Shimmer
                     shimmerElements={[
-                        { type: ShimmerElementType.circle, height: 100 },
-                        { type: ShimmerElementType.gap, width: '10%' },
-                        { type: ShimmerElementType.line, height: 100 },
-                        { type: ShimmerElementType.gap, width: '10%' },
-                        { type: ShimmerElementType.circle, height: 100 },
-                    ]}
-                />
-                <Shimmer
-                    shimmerElements={[
-                        { type: ShimmerElementType.line, height: 16, width: '100%' },
-                    ]}
-                />
-                <Shimmer
-                    shimmerElements={[
-                        { type: ShimmerElementType.circle, height: 100 },
-                        { type: ShimmerElementType.gap, width: '10%' },
-                        { type: ShimmerElementType.line, height: 100 },
-                        { type: ShimmerElementType.gap, width: '10%' },
-                        { type: ShimmerElementType.circle, height: 100 },
+                        { type: ShimmerElementType.line, height: 300, width: '100%' },
                     ]}
                 />
             </Fabric>
@@ -104,6 +87,7 @@ socket.addEventListener('message', function (event) {
                 }, 250);
             }
             break;
+        
     }
 
 });
