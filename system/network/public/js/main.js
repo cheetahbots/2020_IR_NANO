@@ -1,4 +1,5 @@
-const { Icon, Shimmer, ShimmerElementType, Fabric, mergeStyles, initializeIcons } = window.Fabric;
+const { PanelType, Panel, Icon, Shimmer, ShimmerElementType, Fabric, mergeStyles, initializeIcons } = window.Fabric;
+const { useConstCallback } = window.FabricReactHooks;
 
 class Ping extends React.Component {
     render() {
@@ -12,7 +13,7 @@ class Ping extends React.Component {
         }
         const styles = { transform: 'scale(2)', color: color }
         return (
-            <div style={{ margin: '31.5px auto', width: 'auto', textalign: 'center' }}>
+            <div style={{ margin: '31.5px auto', width: 'auto', textAlign: 'center' }}>
                 <Icon iconName="InternetSharing" style={styles} />
                 <span>&nbsp;&nbsp;&nbsp;</span>
                 <span style={{ fontsize: '20px', fontweight: '400' }}>{this.props.delay}ms</span>
@@ -20,6 +21,43 @@ class Ping extends React.Component {
         )
     }
 };
+
+const SettingsIcon = function () {
+    var _a = React.useState(false), isOpen = _a[0], setIsOpen = _a[1];
+    var openPanel = useConstCallback(function () { return setIsOpen(true); });
+    var dismissPanel = useConstCallback(function () { return setIsOpen(false); });
+    return (
+        <div style={{ margin: '31.5px auto', width: 'auto', textAlign: 'center' }}>
+            <Icon iconName="Settings" style={{ transform: 'scale(2)', color: '#0078d4' }} onClick={openPanel} />
+            <Panel isLightDismiss headerText='Settings' type={PanelType.large} isOpen={isOpen} onDismiss={dismissPanel} closeButtonAriaLabel='close'>
+            </Panel>
+        </div>
+    )
+};
+
+class GamePeriod extends React.Component {
+    render() {
+        var Icon_Name, display_time
+        if (this.props.robot_mode == 'auto') {
+            Icon_Name = 'TriggerAuto'
+        } else {
+            Icon_Name = 'Game'
+        }
+        if (this.props.time < 30) {
+            display_time = this.props.time
+        } else {
+            display_time = this.props.time - 30
+        }
+        const styles = { transform: 'scale(3) translateY(-20%)', color: '#0078d4' }
+        return (
+            <div>
+                <Icon iconName={Icon_Name} style={styles} />
+                <span>&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                <span style={{ fontSize: '50px' }}>{display_time} s</span>
+            </div>
+        )
+    }
+}
 
 const wrapperClass = mergeStyles({
     padding: 2,
@@ -36,7 +74,7 @@ class VideoBlank extends React.Component {
             <Fabric className={wrapperClass}>
                 <Shimmer
                     shimmerElements={[
-                        { type: ShimmerElementType.line, height: 300, width: '100%' },
+                        { type: ShimmerElementType.line, height: 350, width: '100%' },
                     ]}
                 />
             </Fabric>
@@ -44,24 +82,25 @@ class VideoBlank extends React.Component {
     }
 };
 
+ReactDOM.render(<SettingsIcon />, document.getElementById('settings'))
 ReactDOM.render(<VideoBlank />, document.getElementById('video1'))
 ReactDOM.render(<VideoBlank />, document.getElementById('video2'))
 ReactDOM.render(<VideoBlank />, document.getElementById('robot'))
 
 // Create WebSocket connection.
-const socket = new WebSocket('ws://localhost:80/api');
+const NANO_socket = new WebSocket('ws://' + location.host + '/api');
 
 // Connection opened
-socket.addEventListener('open', function (event) {
+NANO_socket.addEventListener('open', function (event) {
     var data = {
         "purpose": "ping",
         "time": Date.now()
     }
-    socket.send(JSON.stringify(data));
+    NANO_socket.send(JSON.stringify(data));
 });
 
 // Listen for messages
-socket.addEventListener('message', function (event) {
+NANO_socket.addEventListener('message', function (event) {
     var data = JSON.parse(event.data);
     switch (data['purpose']) {
         case 'pong':
@@ -72,7 +111,7 @@ socket.addEventListener('message', function (event) {
                     "purpose": "ping",
                     "time": Date.now()
                 }
-                socket.send(JSON.stringify(send));
+                NANO_socket.send(JSON.stringify(send));
             } else {
                 var send = {
                     "purpose": "ping",
@@ -83,16 +122,17 @@ socket.addEventListener('message', function (event) {
                         "purpose": "ping",
                         "time": Date.now()
                     }
-                    socket.send(JSON.stringify(send))
+                    NANO_socket.send(JSON.stringify(send))
                 }, 250);
             }
             break;
-        
     }
-
 });
 
 window.onbeforeunload = function () {
-    socket.onclose = function () { }; // disable onclose handler first
-    socket.close()
+    NANO_socket.onclose = function () { }; // disable onclose handler first
+    NANO_socket.close()
 };
+
+//Test only
+ReactDOM.render(<GamePeriod time={50} robot_mode={'game'} />, document.getElementById('header_game_period'))

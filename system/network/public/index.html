@@ -14,6 +14,7 @@
   <script src="js/remarkable.min.js"></script>
   <script src="js/bootstrap.min.js"></script>
   <script src="js/office-ui-fabric-react.js"></script>
+  <script src="js/react-hooks.js"></script>
   <link rel="stylesheet" href="css/base.css" />
   <link rel="stylesheet" href="css/bootstrap.min.css" />
   <link rel="stylesheet" href="css/fabric.min.css" />
@@ -31,26 +32,16 @@
       <div class="ms-Grid-col ms-lg2"></div>
       <div class="ms-Grid-col ms-lg4 justify-content-center" >
         <div style="margin:12.5px auto;width: auto;text-align: center;" id="header_game_period">
-          <!--
-          <i class="ms-Icon ms-Icon--TriggerAuto" aria-hidden="true" style="transform: scale(3);color:#0078d4"></i>
-          <span>&nbsp;&nbsp;&nbsp;&nbsp;</span>
-          <span style="font-size: 50px;">15 s</span>
-          -->
-          <i class="ms-Icon ms-Icon--Game" aria-hidden="true" style="transform: scale(3);color:#0078d4"></i>
-          <span>&nbsp;&nbsp;&nbsp;&nbsp;</span>
-          <span style="font-size: 50px;">15 s</span>
-
-        </div>
+          </div>
       </div>
       <div class="ms-Grid-col ms-lg2"></div>
-      <div class="ms-Grid-col ms-lg2" id="header_time_delay">
-      </div>
+      <div class="ms-Grid-col ms-lg1" id="header_time_delay"></div>
+      <div class="ms-Grid-col ms-lg1" id="settings"></div>
     </div>
     <div class="ms-Grid-row">
       <div class="ms-Grid-col ms-lg4" id="video1"></div>
       <div class="ms-Grid-col ms-lg4" id="video2"></div>
       <div class="ms-Grid-col ms-lg4" id="robot"></div>
-      
     </div>
   </div>
   <script type="text/babel" src="js/main.js"></script>

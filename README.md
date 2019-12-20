@@ -15,6 +15,7 @@ This sub-project serves to define the control strategy for the robot.
 
 4. 系统
 - 占用管理、优先级策略。
+- WEB Dashboard
 
 # Todo
 
