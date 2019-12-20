@@ -3,20 +3,28 @@ const { useConstCallback } = window.FabricReactHooks;
 
 class Ping extends React.Component {
     render() {
-        var color
-        if (this.props.delay < 50) {
-            color = '#107c10'
-        } else if (this.props.delay < 100) {
-            color = '#fce100'
+        var color, delay_text
+        var reg = /^[0-9]*$/
+        if (reg.test(this.props.delay)) {
+            if (this.props.delay < 50) {
+                color = '#107c10'
+
+            } else if (this.props.delay < 100) {
+                color = '#fce100'
+            } else {
+                color = '#d13438'
+            }
+            delay_text = this.props.delay + 'ms'
         } else {
             color = '#d13438'
+            delay_text = 'off'
         }
         const styles = { transform: 'scale(2)', color: color }
         return (
-            <div style={{ margin: '31.5px auto', width: 'auto', textAlign: 'center' }}>
+            <div style={{ margin: '31.5px auto', width: 'auto', textAlign: 'center' }} >
                 <Icon iconName="InternetSharing" style={styles} />
                 <span>&nbsp;&nbsp;&nbsp;</span>
-                <span style={{ fontsize: '20px', fontweight: '400' }}>{this.props.delay}ms</span>
+                <span style={{ fontsize: '20px', fontweight: '400' }}>{delay_text}</span>
             </div>
         )
     }
