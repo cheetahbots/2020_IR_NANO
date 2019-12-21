@@ -131,17 +131,41 @@ pending.fetch = function (id) {
   for (let i = 0; i < pending.pool.length; i++) {
     const req = JSON.parse(pending.pool[i])
     if (req.id === id) {
-      pending.pool.pop(i)
+      pending.pool.splice(i, 1)
       return req
     }
   }
   throw Error('UnexpectedResponse')
 }
+pending.add = function (req) {
+  pending.pool.push(req)
+  return true
+}
+pending.check = function () {
+  const maxWait = 1000 // (ms) response delayed more than this is considered error.
+  var err = false
+  for (let i = pending.pool.length - 1; i >= 0; i--) {
+    const reqRaw = pending.pool[i]
+    const req = JSON.parse(reqRaw)
+    if (Date.now() - req.time > maxWait) {
+      pending.pool.splice(i, 1)
+      err = true
+    }
+  }
+  if (err) {
+    var delay = 404
+    ReactDOM.render(
+      <Ping delay={delay} />,
+      document.getElementById('header_time_delay')
+    )
+    throw Error('timeout error')
+  } else { return true }
+}
 
-function request (purpose, content, res = false, id = Math.random()) {
-  var request = JSON.stringify({ purpose, id, content })
+function request (purpose, content, res = true, time = Date.now(), id = Math.random()) {
+  var request = JSON.stringify({ purpose, id, content, time })
   if (res) {
-    pending.pool.push(request)
+    pending.add(request)
   }
   return request
 }
@@ -162,13 +186,25 @@ NANOSocket.addEventListener('message', function (event) {
       var request = pending.fetch(data.id)
       switch (request.purpose) {
         case 'ping':
-          var delay = Date.now() - request.content.time
+          var delay = Date.now() - request.time
           ReactDOM.render(
             <Ping delay={delay} />,
             document.getElementById('header_time_delay')
           )
           break
 
+        case 'readConfig':
+          console.log(request.content)
+          break
+        case 'writeConfigTemp': // left blank intentionally
+        case 'writeConfigPerm':
+          if (request.content.state === 'success') {
+            console.log('yeah')
+          } else {
+            console.log('damn, handle this shit')
+          }
+
+          break
         default:
           break
       }
@@ -181,10 +217,9 @@ NANOSocket.addEventListener('message', function (event) {
 })
 
 function ping () {
-  NANOSocket.send(request('ping', { time: Date.now() }, true))
+  NANOSocket.send(request('ping', {}, true))
   console.log(pending)
 }
-setInterval(ping, 3000)
 
 window.onbeforeunload = function () {
   NANOSocket.onclose = function () {} // disable onclose handler first
@@ -196,3 +231,6 @@ ReactDOM.render(
   <GamePeriod time={50} robot_mode={'game'} />,
   document.getElementById('header_game_period')
 )
+
+setInterval(ping, 500)
+setInterval(pending.check, 500)

@@ -17,6 +17,7 @@ def response(purpose=None, content={}, id=None, **kwargs):
 
 
 async def staticFile(path, request_headers):
+    'process HTTP requests'
     if path != "/api":  # 非websocket接口，全部静态文件处理
         if path == '/':
             path = '/index.html'
@@ -36,6 +37,8 @@ async def staticFile(path, request_headers):
 
 
 class webServer(moduleDynamic):
+    'host web dashboard and process HTTP/websocket requests'
+
     def __init__(self, sys):
         moduleDynamic.__init__(self)
         self.DataListeners = list()
@@ -52,28 +55,63 @@ class webServer(moduleDynamic):
         return self
 
     async def receiveMessage(self, websocket, path):
+        'process websocket requests'
         async for message in websocket:
             try:
                 messageJSON = json.loads(message)
-                assert 'purpose' in messageJSON and 'content' in messageJSON and 'id' in messageJSON
+                assert 'purpose' in messageJSON and 'content' in messageJSON and 'time' in messageJSON and 'id' in messageJSON
                 purpose = messageJSON['purpose']
                 id_ = messageJSON['id']
+                time = messageJSON['time']
                 content = messageJSON['content']
 
                 if purpose == 'ping':
+                    # content:{time}
+                    await asyncio.sleep(0)
                     responseJSON = response(purpose='response', id=id_)
 
                 elif purpose == 'data':
+                    # content:{<key>:<val>,...}
                     for ins in self.DataListeners:
                         ins.output = content
                     responseJSON = response(purpose='response', id=id_)
 
                 elif purpose == 'loadConfig':
-                    'loadConfig'
+                    # content:{?keys:[(<sec>,<opt>),...]}
+                    if 'keys' in content:
+                        configDict = dict()
+                        for secOpt in content['keys']:
+                            assert len(secOpt) == 2
+                            sec, opt = secOpt
+                            configDict[(sec, opt)] = config.read((sec, opt))
+                    else:
+                        configDict = config.read()
+                    responseJSON = response(
+                        purpose='response', id=id_, content=configDict)
+
+                elif purpose == 'writeConfigTemp':
+                    # content:{(<sec>,<opt>):<val>,...}
+                    for secOpt in content:
+                        assert len(secOpt) == 2
+                        config.write(secOpt, content[secOpt])
+                    responseJSON = response(
+                        purpose='response', id=id_, state='success')
+
+                elif purpose == 'writeConfigPerm':
+                    # content:{(<sec>,<opt>):<val>,...}
+                    for secOpt in content:
+                        assert len(secOpt) == 2
+                        config.write(secOpt, content[secOpt], permanent=True)
+                    responseJSON = response(
+                        purpose='response', id=id_, state='success')
 
                 elif purpose == 'shutdown':
+                    responseJSON = response(
+                        purpose='response', id=id_, state='success')
+                    await websocket.send(responseJSON)
                     await self.system.shutdown()
-
+                    
+                print(responseJSON)
                 await websocket.send(responseJSON)
 
             except AssertionError:
