@@ -147,7 +147,7 @@ function request (purpose, content, res = false, id = Math.random()) {
 }
 
 // Create WebSocket connection.
-const NANOSocket = new WebSocket('ws://' + location.host + '/api')
+const NANOSocket = new ReconnectingWebSocket('ws://' + location.host + '/api')
 
 // Connection opened
 NANOSocket.addEventListener('open', function (event) {
