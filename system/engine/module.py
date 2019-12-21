@@ -128,17 +128,17 @@ class module(activatable, moduleInput):
         self.priority = 0
         self.log('instance created')
 
-    def run(self):
+    async def run(self):
         raise NotImplementedError
 
     # def addInput(self,item):
     #     moduleInput.__init__(self)
     #     self.addInput(moduleInput)
 
-    def initialize(self):
+    async def initialize(self):
         return True
 
-    def work(self):
+    async def work(self):
         raise NotImplementedError
 
     async def sleep(self, t):
@@ -155,7 +155,7 @@ class moduleDynamic(module, moduleOutput):
     async def run(self):
         try:
             self.log('initialize...')
-            self.initialize()
+            await self.initialize()
             self.log('initialize success')
             self.activated = True
 
@@ -183,7 +183,7 @@ class moduleReactive(module):
         if not self.activated:
             try:
                 self.log('initialize...')
-                self.initialize()
+                await self.initialize()
                 self.log('initialize success')
                 self.activated = True
 

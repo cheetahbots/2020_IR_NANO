@@ -22,9 +22,13 @@ def SETUP_MODULES(sys):
     #
     #
     "***EDIT BELOW!***"
-
+    ct1 = counter()
+    use(ct1)
     SM = springMass()
     use(SM)
+
+    obs1 = observer().addInput(ct1)
+    use(obs1)
 
     # sys.addInput(numAdd)
 

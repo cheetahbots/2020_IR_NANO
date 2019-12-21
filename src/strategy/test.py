@@ -5,9 +5,6 @@ class counter(moduleDynamic):
     def __init__(self):
         moduleDynamic.__init__(self)
 
-    def initialize(self):
-        return True
-
     async def work(self):
         self.log("working")
 
@@ -30,7 +27,7 @@ class observer(moduleDynamic):
         self.log("working")
 
         while self.activated:
-            await self.sleep(0.2)
+            await self.sleep(1)
             inputJSON = await self.input
             print(inputJSON)
             if 'num' in inputJSON:
