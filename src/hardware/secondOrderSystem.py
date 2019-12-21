@@ -12,9 +12,6 @@ class springMass(moduleDynamic):
         self.b = 0.05
         self.k = 0.1
 
-    def initialize(self):
-        return True
-
     def step(self, u):
         if self.lastTime == None:
             self.lastTime = time.time()

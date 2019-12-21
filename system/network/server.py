@@ -8,6 +8,7 @@ import Lib.mimetypes as mimetypes
 
 
 from ..engine.module import moduleDynamic
+from ..config import config
 
 
 def response(purpose=None, content={}, id=None, **kwargs):

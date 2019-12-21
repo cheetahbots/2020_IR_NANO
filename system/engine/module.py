@@ -2,11 +2,8 @@ import asyncio
 import math
 import random
 
-from .config import CONFIG
+from ..config import config
 from .util import activatable
-
-
-def conf(opt): return CONFIG('module', opt)
 
 
 class dynamicInput(object):

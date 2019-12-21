@@ -2,14 +2,14 @@ import asyncio
 
 from src.setup import SETUP_MODULES
 
-from .config import CONFIG
+from ..config import config
 from .util import activatable, loggable
 from ..network.server import webServer
 
 # from .network import socketConnection
 
 
-def conf(opt): return CONFIG('system', opt)
+def conf(opt): return config.read(('system', opt))
 
 
 class threadManager(activatable):
