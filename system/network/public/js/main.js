@@ -125,51 +125,66 @@ ReactDOM.render(<VideoBlank />, document.getElementById('video1'))
 ReactDOM.render(<VideoBlank />, document.getElementById('video2'))
 ReactDOM.render(<VideoBlank />, document.getElementById('robot'))
 
+var pending = Object()
+pending.pool = []
+pending.fetch = function (id) {
+  for (let i = 0; i < pending.pool.length; i++) {
+    const req = JSON.parse(pending.pool[i])
+    if (req.id === id) {
+      pending.pool.pop(i)
+      return req
+    }
+  }
+  throw Error('UnexpectedResponse')
+}
+
+function request (purpose, content, res = false, id = Math.random()) {
+  var request = JSON.stringify({ purpose, id, content })
+  if (res) {
+    pending.pool.push(request)
+  }
+  return request
+}
+
 // Create WebSocket connection.
 const NANOSocket = new WebSocket('ws://' + location.host + '/api')
 
 // Connection opened
 NANOSocket.addEventListener('open', function (event) {
-  var data = {
-    purpose: 'ping',
-    time: Date.now()
-  }
-  NANOSocket.send(JSON.stringify(data))
+  ping()
 })
 
 // Listen for messages
 NANOSocket.addEventListener('message', function (event) {
   var data = JSON.parse(event.data)
   switch (data.purpose) {
-    case 'pong':
-      var delay = Date.now() - data.time
-      ReactDOM.render(
-        <Ping delay={delay} />,
-        document.getElementById('header_time_delay')
-      )
-      var send
-      if (delay > 100) {
-        send = {
-          purpose: 'ping',
-          time: Date.now()
-        }
-        NANOSocket.send(JSON.stringify(send))
-      } else {
-        send = {
-          purpose: 'ping',
-          time: Date.now()
-        }
-        setTimeout(function () {
-          send = {
-            purpose: 'ping',
-            time: Date.now()
-          }
-          NANOSocket.send(JSON.stringify(send))
-        }, 250)
+    case 'response':
+      var request = pending.fetch(data.id)
+      switch (request.purpose) {
+        case 'ping':
+          var delay = Date.now() - request.content.time
+          ReactDOM.render(
+            <Ping delay={delay} />,
+            document.getElementById('header_time_delay')
+          )
+          break
+
+        default:
+          break
       }
+
+      break
+
+    default:
       break
   }
 })
+
+function ping () {
+  NANOSocket.send(request('ping', { time: Date.now() }, true))
+  console.log(pending)
+}
+setInterval(ping, 3000)
 
 window.onbeforeunload = function () {
   NANOSocket.onclose = function () {} // disable onclose handler first
