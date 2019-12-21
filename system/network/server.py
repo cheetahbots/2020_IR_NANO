@@ -1,11 +1,16 @@
 import asyncio
-import Lib.http as http
-import websockets
-import Lib.mimetypes as mimetypes
-from src.default import *
 import json
 
-async def static_file(path, request_headers):
+import websockets
+
+import Lib.http as http
+import Lib.mimetypes as mimetypes
+
+
+from ..engine.module import moduleDynamic
+
+
+async def staticFile(path, request_headers):
     if path != "/api":  # 非websocket接口，全部静态文件处理
         if path == '/':
             path = '/index.html'
@@ -22,7 +27,7 @@ async def static_file(path, request_headers):
 # async def echo(websocket, path):
 #     message = await websocket.recv()
 #     await websocket.send('From server ' + message)
-async def receive_message(websocket, path):
+async def receiveMessage(websocket, path):
     async for message in websocket:
         try:
             messageJSON = json.loads(message)
