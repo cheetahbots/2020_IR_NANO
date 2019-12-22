@@ -44,37 +44,32 @@ class Ping extends React.Component {
   }
 }
 
-const SettingsIcon = function () {
-  var _a = React.useState(false)
-  var isOpen = _a[0]
-  var setIsOpen = _a[1]
-  var openPanel = useConstCallback(function () {
-    return setIsOpen(true)
-  })
-  var dismissPanel = useConstCallback(function () {
-    return setIsOpen(false)
-  })
-  return (
-    <div style={{ margin: '31.5px auto', width: 'auto', textAlign: 'center' }}>
-      <Icon
-        iconName="Settings"
-        style={{ transform: 'scale(2)', color: '#0078d4' }}
-        onClick={openPanel}
-      />
-      <Panel
-        isLightDismiss
-        headerText="Settings"
-        type={PanelType.large}
-        isOpen={isOpen}
-        onDismiss={dismissPanel}
-        closeButtonAriaLabel="close"
-      ></Panel>
-    </div>
-  )
+class SettingsIcon extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      isOpen: false,
+    };
+  }
+  openPanel = () => {
+    this.setState({ isOpen: true })
+  }
+  dismissPanel = () => {
+    this.setState({ isOpen: false })
+  }
+  render() {
+    return (
+      <div style={{ margin: '31.5px auto', width: 'auto', textAlign: 'center' }}>
+        <Icon iconName="Settings" style={{ transform: 'scale(2)', color: '#0078d4' }} onClick={this.openPanel.bind()} />
+        <Panel isLightDismiss headerText='Settings' type={PanelType.large} isOpen={this.state.isOpen} onDismiss={this.dismissPanel.bind()} closeButtonAriaLabel='close'>
+        </Panel>
+      </div>
+    )
+  }
 }
 
 class GamePeriod extends React.Component {
-  render () {
+  render() {
     var IconName, displayTime
     if (this.props.robot_mode === 'auto') {
       IconName = 'TriggerAuto'
@@ -107,7 +102,7 @@ const wrapperClass = mergeStyles({
 })
 
 class VideoBlank extends React.Component {
-  render () {
+  render() {
     return (
       <Fabric className={wrapperClass}>
         <Shimmer
@@ -162,7 +157,7 @@ pending.check = function () {
   } else { return true }
 }
 
-function request (purpose, content, res = true, time = Date.now(), id = Math.random()) {
+function request(purpose, content, res = true, time = Date.now(), id = Math.random()) {
   var request = JSON.stringify({ purpose, id, content, time })
   if (res) {
     pending.add(request)
@@ -216,13 +211,13 @@ NANOSocket.addEventListener('message', function (event) {
   }
 })
 
-function ping () {
+function ping() {
   NANOSocket.send(request('ping', {}, true))
   console.log(pending)
 }
 
 window.onbeforeunload = function () {
-  NANOSocket.onclose = function () {} // disable onclose handler first
+  NANOSocket.onclose = function () { } // disable onclose handler first
   NANOSocket.close()
 }
 
