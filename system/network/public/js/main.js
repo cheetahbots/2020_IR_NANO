@@ -45,19 +45,22 @@ class Ping extends React.Component {
 }
 
 class SettingsIcon extends React.Component {
-  constructor(props) {
-    super(props);
+  constructor (props) {
+    super(props)
     this.state = {
-      isOpen: false,
-    };
+      isOpen: false
+    }
   }
+
   openPanel = () => {
     this.setState({ isOpen: true })
   }
+
   dismissPanel = () => {
     this.setState({ isOpen: false })
   }
-  render() {
+
+  render () {
     return (
       <div style={{ margin: '31.5px auto', width: 'auto', textAlign: 'center' }}>
         <Icon iconName="Settings" style={{ transform: 'scale(2)', color: '#0078d4' }} onClick={this.openPanel.bind()} />
@@ -69,7 +72,7 @@ class SettingsIcon extends React.Component {
 }
 
 class GamePeriod extends React.Component {
-  render() {
+  render () {
     var IconName, displayTime
     if (this.props.robot_mode === 'auto') {
       IconName = 'TriggerAuto'
@@ -102,7 +105,7 @@ const wrapperClass = mergeStyles({
 })
 
 class VideoBlank extends React.Component {
-  render() {
+  render () {
     return (
       <Fabric className={wrapperClass}>
         <Shimmer
@@ -157,7 +160,7 @@ pending.check = function () {
   } else { return true }
 }
 
-function request(purpose, content, res = true, time = Date.now(), id = Math.random()) {
+function request (purpose, content, res = true, time = Date.now(), id = Math.random()) {
   var request = JSON.stringify({ purpose, id, content, time })
   if (res) {
     pending.add(request)
@@ -211,7 +214,7 @@ NANOSocket.addEventListener('message', function (event) {
   }
 })
 
-function ping() {
+function ping () {
   NANOSocket.send(request('ping', {}, true))
   console.log(pending)
 }
