@@ -30,12 +30,6 @@ async def staticFile(path, request_headers):
             print(path)
             return http.HTTPStatus.NOT_FOUND, [], b'Not Found'
 
-
-# async def echo(websocket, path):
-#     message = await websocket.recv()
-#     await websocket.send('From server ' + message)
-
-
 class webServer(moduleDynamic):
     'host web dashboard and process HTTP/websocket requests'
 
@@ -47,14 +41,15 @@ class webServer(moduleDynamic):
     async def initialize(self):
         print('CREATE SERVER')
         start_server = websockets.serve(
-            self.receiveMessage, "localhost", 80, process_request=staticFile)
+            self.handler, "localhost", 80, process_request=staticFile)
         await start_server
 
     def attachDataListener(self, pointer):
         self.DataListeners.append(pointer)
         return self
 
-    async def receiveMessage(self, websocket, path):
+    async def consumer_handler(self, websocket, path):
+        # print(websocket.request_header)
         'process websocket requests'
         async for message in websocket:
             try:
@@ -110,7 +105,7 @@ class webServer(moduleDynamic):
                         purpose='response', id=id_, state='success')
                     await websocket.send(responseJSON)
                     await self.system.shutdown()
-                    
+
                 print(responseJSON)
                 await websocket.send(responseJSON)
 
@@ -122,6 +117,21 @@ class webServer(moduleDynamic):
                 self.log('unexpected: ' + e.__class__.__name__)
             finally:
                 pass
+
+    async def producer_handler(self, websocket, path):
+        # 此处应当使用dist() 建立需要发送字典
+        # 如果purpose相同则覆盖
+        # websocket 发送
+        # while True:
+        message = 'TEST'
+        await websocket.send(message)
+
+    async def handler(self, websocket, path):
+        handlers = list()
+        for future in [self.consumer_handler(websocket, path), self.producer_handler(websocket, path)]:
+            handlers.append(asyncio.create_task(future))
+        for handler in handlers:
+            await handler
 
     async def work(self):
         pass
