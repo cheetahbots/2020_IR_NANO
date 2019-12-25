@@ -55,7 +55,7 @@ class requestPool(loggable):
         for req in self.__pool:
             time = req['time']
 
-            if t.time * 1000 - time > self.maxWait:
+            if t.time() * 1000 - time > self.maxWait:
                 del self.__pool[self.__pool.index(req)]
                 err = True
         if err:
@@ -83,23 +83,23 @@ class webServer(moduleDynamic):
     async def initialize(self):
         print('CREATE SERVER')
         start_server = websockets.serve(
-            self.handler, "localhost", 80, process_request=staticFile)
+            self.handler, "localhost", 8765, process_request=staticFile)
         await start_server
 
     def attachDataListener(self, pointer):
         self.DataListeners.append(pointer)
         return self
         
-    def request(self,purpose=None, content={}, id=None, res = True,**kwargs):
+    def request(self,purpose=None, content={}, id=None, res = True, time = t.time(), **kwargs):
         content.update(kwargs)
-        req = json.dumps({'purpose': purpose, 'content': content, 'id': id})
+        req = json.dumps({'purpose': purpose, 'content': content, 'id': id,'time':time})
         if res: self.__pool.add(req)
         return req
 
     def response(self,purpose='response', content={}, id=None, res=False, **kwargs):
         return self.request(purpose, content, id, **kwargs)
 
-    async def handler(self, websocket, path):
+    async def consumer_handler(self, websocket, path):
         'process websocket requests'
         async for message in websocket:
             try:
@@ -172,7 +172,7 @@ class webServer(moduleDynamic):
                     await websocket.send(responseJSON)
                     await self.system.shutdown()
 
-                print(responseJSON)
+                # print(responseJSON)
                 await websocket.send(responseJSON)
 
             except AssertionError:
@@ -183,6 +183,24 @@ class webServer(moduleDynamic):
                 self.log('unexpected: ' + e.__class__.__name__)
             finally:
                 pass
+
+    async def producer_handler(self, websocket,path):
+        while True:
+            self.sleep(0)
+            # message = await producer()
+            # await websocket.send(message)
+
+    async def handler(self,websocket, path):
+        consumer_task = asyncio.ensure_future(
+            self.consumer_handler(websocket, path))
+        producer_task = asyncio.ensure_future(
+            self.producer_handler(websocket, path))
+        _, pending = await asyncio.wait(
+            [consumer_task, producer_task],
+            return_when=asyncio.FIRST_COMPLETED,
+        )
+        for task in pending:
+            task.cancel()
 
     async def work(self):
         self.log("working")
