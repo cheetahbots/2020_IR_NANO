@@ -13,7 +13,7 @@ class springMass(ModuleDynamic):
         self.k = 0.1
 
     def step(self, u):
-        if self.lastTime == None:
+        if self.lastTime is None:
             self.lastTime = time.time()
             return
         thisTime = time.time()

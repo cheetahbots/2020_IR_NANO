@@ -89,12 +89,12 @@ class moduleInput():
         return self
 
     def __addDynamInput(self, pointer):
-        if self.dynamHandler == None:
+        if self.dynamHandler is None:
             self.dynamHandler = dynamicInput()
         self.dynamHandler.addInput(pointer)
 
     def __addReactInput(self, pointer):
-        if self.reactHandler == None:
+        if self.reactHandler is None:
             self.reactHandler = reactiveInput()
         self.reactHandler.addInput(pointer)
 
@@ -149,7 +149,7 @@ class ModuleDynamic(Module, moduleOutput):
         Module.__init__(self)
         moduleOutput.__init__(self)
 
-    async def run(self):
+    async def run(self) -> 'Running Thread':
         try:
             self.log('initialize...')
             await self.initialize()
@@ -176,7 +176,7 @@ class ModuleReactive(Module):
     def __init__(self):
         Module.__init__(self)
 
-    async def run(self):
+    async def run(self) -> 'Running Thread':
         if not self.activated:
             try:
                 self.log('initialize...')

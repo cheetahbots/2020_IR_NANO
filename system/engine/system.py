@@ -5,6 +5,7 @@ from src.setup import SETUP_MODULES
 from ..config import config
 from .util import Activatable, Loggable
 from ..network.server import WebServer
+from typing import Awaitable, List, Optional
 
 # from .network import socketConnection
 
@@ -15,7 +16,7 @@ def conf(opt): return config.read(('system', opt))
 class ThreadHandler(Activatable):
     'initiate a thread without blocking system thread.'
 
-    def __init__(self, futures):
+    def __init__(self, futures: List[Awaitable, ...] = list()):
         Activatable.__init__(self)
         self.activated = True
 
@@ -40,7 +41,7 @@ class ThreadHandler(Activatable):
             await task
 
     async def available(self):
-        while self.son == None:
+        while self.son is None:
             if not self.occupied:
                 return self
             await asyncio.sleep(0.1)
@@ -77,7 +78,7 @@ class System(Loggable):
         self.log('start dynamic modules')
         await self.attachThread([m.run() for m in self.__recur_inst_list])
         self.log('start reactive modules')
-        if not self.__outputHooker == None:
+        if not self.__outputHooker is None:
             # print(await self.__outputHooker.run())
             # for _ in range(20):
             while True:
