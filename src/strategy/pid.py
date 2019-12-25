@@ -1,9 +1,9 @@
 from src.default import *
 
 
-class PID(moduleReactive):
+class PID(ModuleReactive):
     def __init__(self):
-        moduleReactive.__init__(self)
+        ModuleReactive.__init__(self)
         self.__lastVal = 0
         self.__lastTime = time.time
         self.__config = {

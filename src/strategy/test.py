@@ -1,9 +1,9 @@
 from src.default import *
 
 
-class counter(moduleDynamic):
+class Counter(ModuleDynamic):
     def __init__(self):
-        moduleDynamic.__init__(self)
+        ModuleDynamic.__init__(self)
 
     async def work(self):
         self.log("working")
@@ -19,9 +19,9 @@ class counter(moduleDynamic):
             self.output = result
 
 
-class observer(moduleDynamic):
+class Observer(ModuleDynamic):
     def __init__(self):
-        moduleDynamic.__init__(self)
+        ModuleDynamic.__init__(self)
 
     async def work(self):
         self.log("working")
@@ -48,9 +48,9 @@ class observer(moduleDynamic):
             #     self.activated = False
 
 
-class numberGenerator(moduleReactive):
+class numberGenerator(ModuleReactive):
     def __init__(self):
-        moduleReactive.__init__(self)
+        ModuleReactive.__init__(self)
 
     async def work(self):
         self.log("working")
@@ -58,9 +58,9 @@ class numberGenerator(moduleReactive):
         return {'num': 1}
 
 
-class numberAdder(moduleReactive):
+class numberAdder(ModuleReactive):
     def __init__(self):
-        moduleReactive.__init__(self)
+        ModuleReactive.__init__(self)
 
     async def work(self):
         inputJSON = await self.input

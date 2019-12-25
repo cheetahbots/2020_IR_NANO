@@ -1,6 +1,7 @@
 import asyncio
 import json
 import time as t
+from typing import Optional, Union
 
 import websockets
 
@@ -8,11 +9,12 @@ import Lib.http as http
 import Lib.mimetypes as mimetypes
 
 from ..config import config
-from ..engine.module import moduleDynamic
-from ..engine.util import loggable
+from ..engine.module import ModuleDynamic
+from ..engine.system import System
+from ..engine.util import Loggable
 
 
-async def staticFile(path, request_headers):
+async def staticFile(path: str, request_headers):
     'process HTTP requests'
     if path != "/api":  # 非websocket接口，全部静态文件处理
         if path == '/':
@@ -26,30 +28,26 @@ async def staticFile(path, request_headers):
             print(path)
             return http.HTTPStatus.NOT_FOUND, [], b'Not Found'
 
-class requestPool(loggable):
+
+class RequestPool(Loggable):
     def __init__(self):
-        loggable.__init__(self)
+        Loggable.__init__(self)
         self.__pool = list()
 
     @property
     def maxWait(self):
         'load from config max wait time in ms'
         return 1000
-        
-    def add(self, reqRaw):
-        if type(reqRaw) is str:
-            req=json.loads(reqRaw)
-        elif type(reqRaw) is dict:
-            req = reqRaw
-        else: raise Exception('wtf, this is not a request, man.')
-        
-        assert 'purpose' in req
-        assert 'content' in req
-        assert 'time' in req
-        assert 'id' in req
 
-        self.__pool.append(req)
-        
+    def push(self, request: dict) -> None:
+
+        assert 'purpose' in request
+        assert 'content' in request
+        assert 'time' in request
+        assert 'id' in request
+
+        self.__pool.append(request)
+
     def check(self):
         err = False
         for req in self.__pool:
@@ -63,7 +61,7 @@ class requestPool(loggable):
         else:
             return True
 
-    def fetch(self,id_):
+    def fetch(self, id_):
         for req in self.__pool:
             id__ = req['id']
             if id__ == id_:
@@ -71,14 +69,15 @@ class requestPool(loggable):
                 return req
         raise Exception('UnexpectedResponse')
 
-class webServer(moduleDynamic):
+
+class WebServer(ModuleDynamic):
     'host web dashboard and process HTTP/websocket requests'
 
-    def __init__(self, sys):
-        moduleDynamic.__init__(self)
+    def __init__(self, sys: System):
+        ModuleDynamic.__init__(self)
         self.DataListeners = list()
         self.system = sys
-        self.__pool = requestPool()
+        self.__pool = RequestPool()
 
     async def initialize(self):
         print('CREATE SERVER')
@@ -86,18 +85,19 @@ class webServer(moduleDynamic):
             self.handler, "localhost", 8765, process_request=staticFile)
         await start_server
 
-    def attachDataListener(self, pointer):
-        self.DataListeners.append(pointer)
+    def attachDataListener(self, module):
+        self.DataListeners.append(module)
         return self
-        
-    def request(self,purpose=None, content={}, id=None, res = True, time = t.time(), **kwargs):
-        content.update(kwargs)
-        req = json.dumps({'purpose': purpose, 'content': content, 'id': id,'time':time})
-        if res: self.__pool.add(req)
-        return req
 
-    def response(self,purpose='response', content={}, id=None, res=False, **kwargs):
-        return self.request(purpose, content, id, **kwargs)
+    def request(self, purpose: str, content: dict = dict(), id: Optional[int, float, str] = None, res: bool = True, time=t.time(), **kwargs):
+        content.update(kwargs)
+        req = {'purpose': purpose, 'content': content, 'id': id, 'time': time}
+        if res:
+            self.__pool.push(req)
+        return json.dumps(req)
+
+    def response(self, purpose='response', content: dict = dict(), id: Optional[int, float, str] = None, res: bool = False, **kwargs):
+        return self.request(purpose, content, id, res, **kwargs)
 
     async def consumer_handler(self, websocket, path):
         'process websocket requests'
@@ -112,7 +112,7 @@ class webServer(moduleDynamic):
                 id_ = messageJSON['id']
                 time = messageJSON['time']
                 content = messageJSON['content']
-                
+
                 if purpose == 'response':
                     request = json.loads(self.__pool.fetch(id_))
                     assert 'purpose' in request
@@ -129,13 +129,13 @@ class webServer(moduleDynamic):
 
                 elif purpose == 'ping':
                     # content:{time}
-                    responseJSON = self.response( id=id_)
+                    responseJSON = self.response(id=id_)
 
                 elif purpose == 'data':
                     # content:{<key>:<val>,...}
                     for ins in self.DataListeners:
                         ins.output = content
-                    responseJSON = self.response( id=id_)
+                    responseJSON = self.response(id=id_)
 
                 elif purpose == 'loadConfig':
                     # content:{?keys:[(<sec>,<opt>),...]}
@@ -148,7 +148,7 @@ class webServer(moduleDynamic):
                     else:
                         configDict = config.read()
                     responseJSON = self.response(
-                         id=id_, content=configDict)
+                        id=id_, content=configDict)
 
                 elif purpose == 'writeConfigTemp':
                     # content:{(<sec>,<opt>):<val>,...}
@@ -156,7 +156,7 @@ class webServer(moduleDynamic):
                         assert len(secOpt) == 2
                         config.write(secOpt, content[secOpt])
                     responseJSON = self.response(
-                         id=id_, state='success')
+                        id=id_, state='success')
 
                 elif purpose == 'writeConfigPerm':
                     # content:{(<sec>,<opt>):<val>,...}
@@ -164,11 +164,11 @@ class webServer(moduleDynamic):
                         assert len(secOpt) == 2
                         config.write(secOpt, content[secOpt], permanent=True)
                     responseJSON = self.response(
-                         id=id_, state='success')
+                        id=id_, state='success')
 
                 elif purpose == 'shutdown':
                     responseJSON = self.response(
-                         id=id_, state='success')
+                        id=id_, state='success')
                     await websocket.send(responseJSON)
                     await self.system.shutdown()
 
@@ -184,13 +184,13 @@ class webServer(moduleDynamic):
             finally:
                 pass
 
-    async def producer_handler(self, websocket,path):
+    async def producer_handler(self, websocket, path):
         while True:
             self.sleep(0)
             # message = await producer()
             # await websocket.send(message)
 
-    async def handler(self,websocket, path):
+    async def handler(self, websocket: websockets.WebSocketServerProtocol, path: str):
         consumer_task = asyncio.ensure_future(
             self.consumer_handler(websocket, path))
         producer_task = asyncio.ensure_future(

@@ -1,9 +1,9 @@
 from ..default import *
 
 
-class encoderAngularPos(moduleDynamic):
+class encoderAngularPos(ModuleDynamic):
     def __init__(self):
-        moduleDynamic.__init__(self)
+        ModuleDynamic.__init__(self)
 
     def initialize(self):
         return True

@@ -3,10 +3,10 @@ import math
 import random
 
 from ..config import config
-from .util import activatable
+from .util import Activatable
 
 
-class dynamicInput(object):
+class dynamicInput():
     '订阅dynamic模块，拉取其output属性作为模块输入.'
 
     def __init__(self):
@@ -25,7 +25,7 @@ class dynamicInput(object):
         return self
 
 
-class reactiveInput(object):
+class reactiveInput():
     '订阅reactive模块，向其发送异步请求以获取模块输入.'
 
     def __init__(self):
@@ -51,7 +51,7 @@ class reactiveInput(object):
         return self
 
 
-class moduleInput(object):
+class moduleInput():
     def __init__(self):
         self.dynamHandler = None
         self.reactHandler = None
@@ -77,15 +77,15 @@ class moduleInput(object):
             outputs.extend(await self.reactHandler.fetchOutput())
         return outputs
 
-    def addInput(self, pointer):
+    def addInput(self, module):
         '根据连接的模块自动惰性加载DynamicInput或ReactiveInput'
-        if not hasattr(pointer, 'isDynamic'):
+        if not hasattr(module, 'isDynamic'):
             raise Exception('input subscription must be a module')
         else:
-            if pointer.isDynamic:
-                self.__addDynamInput(pointer)
+            if module.isDynamic:
+                self.__addDynamInput(module)
             else:
-                self.__addReactInput(pointer)
+                self.__addReactInput(module)
         return self
 
     def __addDynamInput(self, pointer):
@@ -99,7 +99,7 @@ class moduleInput(object):
         self.reactHandler.addInput(pointer)
 
 
-class moduleOutput(object):
+class moduleOutput():
     '在模块上建立output属性供其他模块读取.'
 
     def __init__(self):
@@ -116,11 +116,11 @@ class moduleOutput(object):
         self.__outputData = value
 
 
-class module(activatable, moduleInput):
+class Module(Activatable, moduleInput):
     '所有模块的基类.'
 
     def __init__(self):
-        activatable.__init__(self)
+        Activatable.__init__(self)
         moduleInput.__init__(self)
         self.priority = 0
         self.log('instance created')
@@ -142,11 +142,11 @@ class module(activatable, moduleInput):
         await asyncio.sleep(t)
 
 
-class moduleDynamic(module, moduleOutput):
+class ModuleDynamic(Module, moduleOutput):
     'dynamic模块中的worker方法是单独的线程，循环执行以更新output.'
 
     def __init__(self):
-        module.__init__(self)
+        Module.__init__(self)
         moduleOutput.__init__(self)
 
     async def run(self):
@@ -170,11 +170,11 @@ class moduleDynamic(module, moduleOutput):
         return True
 
 
-class moduleReactive(module):
+class ModuleReactive(Module):
     'reactive模块中的worker方法返回异步结果.'
 
     def __init__(self):
-        module.__init__(self)
+        Module.__init__(self)
 
     async def run(self):
         if not self.activated:

@@ -1,9 +1,9 @@
 from ..default import *
 
 
-class networkTable(moduleDynamic):
+class NetworkTable(ModuleDynamic):
     def __init__(self):
-        moduleDynamic.__init__(self)
+        ModuleDynamic.__init__(self)
 
     def initialize(self):
         return True
@@ -17,9 +17,9 @@ class networkTable(moduleDynamic):
             self.output = None
 
 
-class socketData(moduleReactive):
+class SocketData(ModuleReactive):
     def __init__(self):
-        moduleDynamic.__init__(self)
+        ModuleDynamic.__init__(self)
         # self.__output = None
         self.__outputData = dict()
         if not hasattr(self, 'priority'):

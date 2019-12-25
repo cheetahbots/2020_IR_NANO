@@ -1,14 +1,14 @@
 import logging
 
 
-class loggable():
+class Loggable():
     '通过self.log方法在消息中标出当前模块信息'
     globalIdCounter = 0
 
     def __init__(self, scope='main'):
-        self.__ID = loggable.globalIdCounter
+        self.__ID = Loggable.globalIdCounter
         self.__scope = scope
-        loggable.globalIdCounter += 1
+        Loggable.globalIdCounter += 1
         self.__logger = logging.getLogger(
             f"{self.__scope}.{self.__class__.__name__} [{str(self.__ID)}]")
 
@@ -17,11 +17,11 @@ class loggable():
             self.__logger.info(msg)
 
 
-class activatable(loggable):
+class Activatable(Loggable):
     '能够设置模块的activated状态，继承loggable'
 
     def __init__(self):
-        loggable.__init__(self)
+        Loggable.__init__(self)
         self.__activated = False
 
     @property

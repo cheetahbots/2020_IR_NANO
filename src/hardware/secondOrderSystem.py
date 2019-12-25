@@ -1,11 +1,11 @@
 from ..default import *
 
 
-class springMass(moduleDynamic):
+class springMass(ModuleDynamic):
     " m a + b v + k x = u "
 
     def __init__(self):
-        moduleDynamic.__init__(self)
+        ModuleDynamic.__init__(self)
         self.state = (0, 50)
         self.lastTime = None
         self.m = 1

@@ -3,8 +3,8 @@ import asyncio
 from src.setup import SETUP_MODULES
 
 from ..config import config
-from .util import activatable, loggable
-from ..network.server import webServer
+from .util import Activatable, Loggable
+from ..network.server import WebServer
 
 # from .network import socketConnection
 
@@ -12,11 +12,11 @@ from ..network.server import webServer
 def conf(opt): return config.read(('system', opt))
 
 
-class threadManager(activatable):
+class ThreadHandler(Activatable):
     'initiate a thread without blocking system thread.'
 
     def __init__(self, futures):
-        activatable.__init__(self)
+        Activatable.__init__(self)
         self.activated = True
 
         self.futures = futures
@@ -29,7 +29,7 @@ class threadManager(activatable):
             if not self.activated:
                 return
             await asyncio.sleep(float(conf('threadLoadCycle')))
-        self.son = threadManager(futures=[])
+        self.son = ThreadHandler(futures=[])
         self.occupied = True
         self.log('begin thread execution')
         tasks = list()
@@ -47,12 +47,12 @@ class threadManager(activatable):
         return self.son
 
 
-class system(loggable):
+class System(Loggable):
     '主控线程'
 
-    def __init__(self, threadM, ID=0):
-        loggable.__init__(self)
-        self.__threadM = threadM
+    def __init__(self, thread_handler: ThreadHandler):
+        Loggable.__init__(self)
+        self.__thread_handler = thread_handler
         self.__outputHooker = None
         # Init Modules
         self.__inst_list = SETUP_MODULES(self)
@@ -67,7 +67,7 @@ class system(loggable):
         #     if ins.__class__.__name__ == "socketData":
         #         self.__socketHandler.attachDataListener(ins)
         # self.__recur_inst_list.append(self.__socketHandler)
-        self.__socketHandler = webServer(self)
+        self.__socketHandler = WebServer(self)
         for ins in self.__inst_list:
             if ins.__class__.__name__ == "socketData":
                 self.__socketHandler.attachDataListener(ins)
@@ -87,17 +87,17 @@ class system(loggable):
         # await self.shutdown()
 
     async def attachThread(self, futures):
-        self.__threadM = await self.__threadM.available()
+        self.__thread_handler = await self.__thread_handler.available()
         self.log('begin attach thread!')
-        self.__threadM.futures = futures
+        self.__thread_handler.futures = futures
 
     async def shutdown(self):
-        self.__threadM = await self.__threadM.available()
+        self.__thread_handler = await self.__thread_handler.available()
         self.log('system shutting down')
-        self.__threadM.activated = False
+        self.__thread_handler.activated = False
         # self.__threadM.son.activated = False
         for inst in self.__inst_list:
             inst.activated = False
 
-    def addInput(self, obj):
-        self.__outputHooker = obj
+    def addInput(self, module):
+        self.__outputHooker = module
