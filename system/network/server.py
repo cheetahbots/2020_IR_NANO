@@ -10,7 +10,6 @@ import Lib.mimetypes as mimetypes
 
 from ..config import config
 from ..engine.module import ModuleDynamic
-from ..engine.system import System
 from ..engine.util import Loggable
 
 
@@ -73,7 +72,7 @@ class RequestPool(Loggable):
 class WebServer(ModuleDynamic):
     'host web dashboard and process HTTP/websocket requests'
 
-    def __init__(self, sys: System):
+    def __init__(self, sys):
         ModuleDynamic.__init__(self)
         self.DataListeners = list()
         self.system = sys
@@ -89,14 +88,14 @@ class WebServer(ModuleDynamic):
         self.DataListeners.append(module)
         return self
 
-    def request(self, purpose: str, content: dict = dict(), id: Optional[int, float, str] = None, res: bool = True, time=t.time(), **kwargs):
+    def request(self, purpose: str, content: dict = dict(), id: Union[int, float, str] = None, res: bool = True, time=t.time(), **kwargs):
         content.update(kwargs)
         req = {'purpose': purpose, 'content': content, 'id': id, 'time': time}
         if res:
             self.__pool.push(req)
         return json.dumps(req)
 
-    def response(self, purpose='response', content: dict = dict(), id: Optional[int, float, str] = None, res: bool = False, **kwargs):
+    def response(self, purpose='response', content: dict = dict(), id: Union[int, float, str] = None, res: bool = False, **kwargs):
         return self.request(purpose, content, id, res, **kwargs)
 
     async def consumer_handler(self, websocket, path):

@@ -16,7 +16,7 @@ def conf(opt): return config.read(('system', opt))
 class ThreadHandler(Activatable):
     'initiate a thread without blocking system thread.'
 
-    def __init__(self, futures: List[Awaitable, ...] = list()):
+    def __init__(self, futures: List[Awaitable] = list()):
         Activatable.__init__(self)
         self.activated = True
 
