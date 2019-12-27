@@ -10,12 +10,18 @@ const {
   ShimmerElementType,
   Fabric,
   mergeStyles,
-  initializeIcons
+  initializeIcons,
+  Breadcrumb,
+  IBreadcrumbItem,
+  IDividerAsProps,
+  Label,
+  ILabelStyles,
+  TooltipHost
 } = window.Fabric
 const { useConstCallback } = window.FabricReactHooks
 
 class Ping extends React.Component {
-  render () {
+  render() {
     var color, delayText
     var reg = /^[0-9]*$/
     if (reg.test(this.props.delay)) {
@@ -45,7 +51,7 @@ class Ping extends React.Component {
 }
 
 class SettingsIcon extends React.Component {
-  constructor (props) {
+  constructor(props) {
     super(props)
     this.state = {
       isOpen: false
@@ -60,11 +66,12 @@ class SettingsIcon extends React.Component {
     this.setState({ isOpen: false })
   }
 
-  render () {
+  render() {
     return (
       <div style={{ margin: '31.5px auto', width: 'auto', textAlign: 'center' }}>
         <Icon iconName="Settings" style={{ transform: 'scale(2)', color: '#0078d4' }} onClick={this.openPanel.bind()} />
         <Panel isLightDismiss headerText='Settings' type={PanelType.large} isOpen={this.state.isOpen} onDismiss={this.dismissPanel.bind()} closeButtonAriaLabel='close'>
+          <SettingContext></SettingContext>
         </Panel>
       </div>
     )
@@ -72,7 +79,7 @@ class SettingsIcon extends React.Component {
 }
 
 class GamePeriod extends React.Component {
-  render () {
+  render() {
     var IconName, displayTime
     if (this.props.robot_mode === 'auto') {
       IconName = 'TriggerAuto'
@@ -105,7 +112,7 @@ const wrapperClass = mergeStyles({
 })
 
 class VideoBlank extends React.Component {
-  render () {
+  render() {
     return (
       <Fabric className={wrapperClass}>
         <Shimmer
@@ -115,6 +122,44 @@ class VideoBlank extends React.Component {
         />
       </Fabric>
     )
+  }
+}
+
+class SettingContext extends React.Component {
+  constructor(props) {
+    super(props)
+    this.items = [
+      { text: 'Cheetahbots', key: 'main', onClick: this._onBreadcrumbItemClicked },
+      { text: 'Parameters', key: 'main.1', onClick: this._onBreadcrumbItemClicked },
+    ];
+  }
+  _onBreadcrumbItemClicked = (ev, item) => {
+    console.log(`Breadcrumb item with key "${item.key}" has been clicked.`);
+  }
+  _getCustomDivider = () => {
+    const tooltipText = dividerProps.item ? dividerProps.item.text : '';
+    return (
+      <TooltipHost content={`Show ${tooltipText} contents`} calloutProps={{ gapSpace: 0 }}>
+        <span aria-hidden="true" style={{ cursor: 'pointer', padding: 5 }}>
+          /
+      </span>
+      </TooltipHost>
+    );
+  }
+  _getCustomOverflowIcon = () => {
+    return <Icon iconName={'ChevronDown'} />;
+  }
+  render() {
+    return (
+      <div>
+        <Breadcrumb
+          items={this.items}
+          maxDisplayedItems={3}
+          ariaLabel="Breadcrumb"
+          overflowAriaLabel="More links"
+        />
+      </div>
+    );
   }
 }
 
@@ -160,7 +205,7 @@ pending.check = function () {
   } else { return true }
 }
 
-function request (purpose, content, res = true, time = Date.now(), id = Math.random()) {
+function request(purpose, content, res = true, time = Date.now(), id = Math.random()) {
   var request = JSON.stringify({ purpose, id, content, time })
   if (res) {
     pending.add(request)
@@ -169,7 +214,7 @@ function request (purpose, content, res = true, time = Date.now(), id = Math.ran
 }
 
 // Create WebSocket connection.
-const NANOSocket = new ReconnectingWebSocket('ws://' + location.host + '/api')
+const NANOSocket = new ReconnectingWebSocket('ws://' + location.host +  '/api')
 
 // Connection opened
 NANOSocket.addEventListener('open', function (event) {
@@ -214,7 +259,7 @@ NANOSocket.addEventListener('message', function (event) {
   }
 })
 
-function ping () {
+function ping() {
   NANOSocket.send(request('ping', {}, true))
   console.log(pending)
 }

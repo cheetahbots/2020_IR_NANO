@@ -185,7 +185,7 @@ class WebServer(ModuleDynamic):
 
     async def producer_handler(self, websocket, path):
         while True:
-            self.sleep(0)
+            await self.sleep(0)
             # message = await producer()
             # await websocket.send(message)
 
