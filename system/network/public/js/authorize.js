@@ -9,7 +9,7 @@ class AuthField extends React.Component {
         this.setState({ FedAuth: newValue || '' });
     }
     login=()=> {
-        setCookie("FedAuth", this.state.FedAuth, 7)
+        setCookie("FedAuth", this.state.FedAuth, 365)
         location.href ='/'
     }
     render() {
