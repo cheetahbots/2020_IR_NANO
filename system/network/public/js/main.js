@@ -214,7 +214,7 @@ function request(purpose, content, res = true, time = Date.now(), id = Math.rand
 }
 
 // Create WebSocket connection.
-const NANOSocket = new ReconnectingWebSocket('ws://' + location.host +  '/api')
+const NANOSocket = new ReconnectingWebSocket('ws://' + location.host +  '/api/ws')
 
 // Connection opened
 NANOSocket.addEventListener('open', function (event) {
@@ -261,7 +261,7 @@ NANOSocket.addEventListener('message', function (event) {
 
 function ping() {
   NANOSocket.send(request('ping', {}, true))
-  console.log(pending)
+  //console.log(pending)
 }
 
 window.onbeforeunload = function () {
@@ -277,3 +277,7 @@ ReactDOM.render(
 
 setInterval(ping, 500)
 setInterval(pending.check, 500)
+
+function load_config(){
+  NANOSocket.send(request('loadConfig', {}, true))
+}

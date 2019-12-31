@@ -2,6 +2,8 @@ import asyncio
 import json
 import time as t
 from typing import Optional, Union
+import Lib.re as re
+import Lib.configparser as cookieparser
 
 import websockets
 
@@ -13,19 +15,52 @@ from ..engine.module import ModuleDynamic
 from ..engine.util import Loggable
 
 
-async def staticFile(path: str, request_headers):
+async def process_request(path: str, request_headers):
     'process HTTP requests'
-    if path != "/api":  # 非websocket接口，全部静态文件处理
-        if path == '/':
-            path = '/index.html'
+    def Authorize():
+        cookies = cookieparser.ConfigParser()
+        cookies.read_string(
+            '[cookie]\n' + request_headers['Cookie'].replace('; ', '\n'))
         try:
-            f = open('./system/network/public'+path, 'rb')
+            if cookies['cookie']['FedAuth'] == 'CJSNB':
+                return True
+            else:
+                return False
+        except:
+            return False
+
+    if Authorize():
+        # 认证有权限
+        if path == "/api/ws": # websocket 接口
+            return None
+        elif (re.search("/api/.*", path)):
+            ### API CURD 接口处###
+            return http.HTTPStatus.OK, [('content-type', mimetypes.MimeTypes().guess_type(path)[0])], b'api/pool'
+        elif path == '/':
+            # 根目录手动重写
+            path = '/index.html'
+    else:
+        if path == '/' or re.search("/api/.*", path):
+            # 认证无权限 => 验证页面
+            f = open('./system/network/public/authorize.html', 'rb')
             body = bytes(f.read())
             f.close()
-            return http.HTTPStatus.OK, [('content-type', mimetypes.MimeTypes().guess_type(path)[0])], body
-        except:
-            print(path)
-            return http.HTTPStatus.NOT_FOUND, [], b'Not Found'
+            return http.HTTPStatus.UNAUTHORIZED, [('content-type', 'text/html')], body
+    if path == '/team' :
+        ### team id  来自 config ###
+        return http.HTTPStatus.OK, [], b'9118'
+    try:
+        # 尝试打开文件，HTTP serve 200
+        f = open('./system/network/public'+path, 'rb')
+        body = bytes(f.read())
+        f.close()
+        return http.HTTPStatus.OK, [('content-type', mimetypes.MimeTypes().guess_type(path)[0])], body
+    except:
+        # 尝试打开文件失败，HTTP serve 404
+        f = open('./system/network/public/error/404.html', 'rb')
+        body = bytes(f.read())
+        f.close()
+        return http.HTTPStatus.NOT_FOUND, [('content-type', 'text/html')], body
 
 
 class RequestPool(Loggable):
@@ -81,7 +116,7 @@ class WebServer(ModuleDynamic):
     async def initialize(self):
         print('CREATE SERVER')
         start_server = websockets.serve(
-            self.handler, "localhost", 8765, process_request=staticFile)
+            self.handler, "localhost", 8765, process_request=process_request)
         await start_server
 
     def attachDataListener(self, module):
