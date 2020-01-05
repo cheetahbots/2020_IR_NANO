@@ -3,6 +3,10 @@
 /* eslint-disable react/react-in-jsx-scope */
 /* eslint-disable no-undef */
 const {
+  Stack,
+  PrimaryButton,
+  CommandBar,
+  ICommandBarItemProps,
   PanelType,
   Panel,
   Icon,
@@ -67,9 +71,30 @@ class SettingsIcon extends React.Component {
   }
 
   render() {
+    const _items = [{
+      key: 'Run',
+      text: 'Run',
+      iconProps: { iconName: 'Rocket' },
+      onClick: ()=>console.log("Run")
+    },
+    {
+      key: 'Settings',
+      text: 'Settings',
+      iconProps: { iconName: 'Settings' },
+      onClick: this.openPanel.bind()
+    },
+    {
+      key: 'Dev',
+      text: 'Dev',
+      iconProps: { iconName: 'DeveloperTools' },
+      onClick: this.openPanel.bind()
+    },
+    ]
     return (
-      <div style={{ margin: '31.5px auto', width: 'auto', textAlign: 'center' }}>
-        <Icon iconName="Settings" style={{ transform: 'scale(2)', color: '#0078d4' }} onClick={this.openPanel.bind()} />
+      <div style={{ margin: '22.25px auto', width: 'auto', textAlign: 'center' }}>
+        <CommandBar
+          items={_items}
+        />
         <Panel isLightDismiss headerText='Settings' type={PanelType.large} isOpen={this.state.isOpen} onDismiss={this.dismissPanel.bind()} closeButtonAriaLabel='close'>
           <SettingContext></SettingContext>
         </Panel>
@@ -158,6 +183,8 @@ class SettingContext extends React.Component {
           ariaLabel="Breadcrumb"
           overflowAriaLabel="More links"
         />
+
+
       </div>
     );
   }
@@ -214,7 +241,7 @@ function request(purpose, content, res = true, time = Date.now(), id = Math.rand
 }
 
 // Create WebSocket connection.
-const NANOSocket = new ReconnectingWebSocket('ws://' + location.host +  '/api/ws')
+const NANOSocket = new ReconnectingWebSocket('ws://' + location.host + '/api/ws')
 
 // Connection opened
 NANOSocket.addEventListener('open', function (event) {
@@ -278,6 +305,6 @@ ReactDOM.render(
 setInterval(ping, 500)
 setInterval(pending.check, 500)
 
-function load_config(){
+function load_config() {
   NANOSocket.send(request('loadConfig', {}, true))
 }
