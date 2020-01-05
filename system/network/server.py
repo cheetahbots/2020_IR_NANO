@@ -42,7 +42,7 @@ async def process_request(path: str, request_headers):
             #  dev 文件手动重写
             path = '/dev.html'
     else:
-        if path == '/' or '/dev' or re.search("/api/.*", path):
+        if path == '/' or path == '/dev' or re.search("/api/.*", path):
             # 认证无权限 => 验证页面
             f = open('./system/network/public/authorize.html', 'rb')
             body = bytes(f.read())
