@@ -20,7 +20,7 @@ async def process_request(path: str, request_headers):
     def Authorize():
         cookies = cookieparser.ConfigParser()
         try:
-            cookies.read_string(     '[cookie]\n' + request_headers['Cookie'].replace('; ', '\n'))
+            cookies.read_string('[cookie]\n' + request_headers['Cookie'].replace('; ', '\n'))
             if cookies['cookie']['FedAuth'] == 'CJSNB':
                 return True
             else:
@@ -38,8 +38,11 @@ async def process_request(path: str, request_headers):
         elif path == '/':
             # 根目录手动重写
             path = '/index.html'
+        elif path =='/dev':
+            #  dev 文件手动重写
+            path = '/dev.html'
     else:
-        if path == '/' or re.search("/api/.*", path):
+        if path == '/' or '/dev' or re.search("/api/.*", path):
             # 认证无权限 => 验证页面
             f = open('./system/network/public/authorize.html', 'rb')
             body = bytes(f.read())

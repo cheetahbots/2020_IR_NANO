@@ -87,7 +87,12 @@ class SettingsIcon extends React.Component {
       key: 'Dev',
       text: 'Dev',
       iconProps: { iconName: 'DeveloperTools' },
-      onClick: this.openPanel.bind()
+      onClick: () => {
+        window.open(
+            '/dev',
+            '_blank' // <- This is what makes it open in a new window.
+          );
+      }
     },
     ]
     return (
