@@ -19,16 +19,15 @@ async def process_request(path: str, request_headers):
     'process HTTP requests'
     def Authorize():
         cookies = cookieparser.ConfigParser()
-        cookies.read_string(
-            '[cookie]\n' + request_headers['Cookie'].replace('; ', '\n'))
         try:
+            cookies.read_string(     '[cookie]\n' + request_headers['Cookie'].replace('; ', '\n'))
             if cookies['cookie']['FedAuth'] == 'CJSNB':
                 return True
             else:
                 return False
         except:
             return False
-
+    
     if Authorize():
         # 认证有权限
         if path == "/api/ws": # websocket 接口
