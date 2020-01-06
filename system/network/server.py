@@ -39,32 +39,36 @@ async def process_request(path: str, request_headers):
             try:
                 if (re.search("/api/config.*", path)):
                     querys = urlparse.parse_qs(path.split('?')[1])
-                    assert 'method' in querys
-                    assert 'id' in querys
-                    assert 'value' in querys
+                    # assert 'method' in querys
+                    # assert 'id' in querys
+                    # assert 'value' in querys
 
-                    method = querys['method'][0]
-                    id_ = querys['id_'][0]
-                    value = querys['value'][0]
+                    method = querys.get('method')[0] if querys.get(
+                        'method')[0] is not None else ''
+                    id_ = querys.get('id')[0] if querys.get(
+                        'id')[0] is not None else ''
+                    value = querys.get('value')[0] if querys.get(
+                        'value') is not None else ''
 
+                    config_query = tuple(id_.split('.'))
                     if method == 'get':
-                        config_query = tuple(id_.split('.'))
                         try:
-                            result = bytes(json.dumps(config.read(config_query)))
+                            result = json.dumps(
+                                {"code": 200, "data": config.read(config_query)})
                         except Exception("configQueryError"):
                             raise
 
                     elif method == 'update':
-                        config_write = tuple(id_.split('.'))
                         try:
-                            config.write(config_write, value)
-                            result = b'success'
+                            config.write(config_query, value)
+                            result = json.dumps(
+                                {"code": 200, "data": {"id": id_, "value": value}})
                         except Exception:
                             raise
 
-                return http.HTTPStatus.OK, [('content-type', mimetypes.MimeTypes().guess_type(path)[0])], result
+                return http.HTTPStatus.OK, [('content-type', 'application/json')], result.encode('ascii')
             except:
-                http.HTTPStatus.NOT_FOUND, [('content-type', 'text/html')], b'shit' # TODO @MARTIN 把这个改成错误返回值
+                return http.HTTPStatus.INTERNAL_SERVER_ERROR, [('content-type', 'text/html')], b'{"code":"500"}'
         elif path == '/':
             # 根目录手动重写
             path = '/index.html'
