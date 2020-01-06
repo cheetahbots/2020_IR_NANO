@@ -9,6 +9,7 @@ import websockets
 
 import Lib.http as http
 import Lib.mimetypes as mimetypes
+import Lib.urllib.parse as urlparse
 
 from ..config import config
 from ..engine.module import ModuleDynamic
@@ -20,25 +21,54 @@ async def process_request(path: str, request_headers):
     def Authorize():
         cookies = cookieparser.ConfigParser()
         try:
-            cookies.read_string('[cookie]\n' + request_headers['Cookie'].replace('; ', '\n'))
+            cookies.read_string(
+                '[cookie]\n' + request_headers['Cookie'].replace('; ', '\n'))
             if cookies['cookie']['FedAuth'] == 'CJSNB':
                 return True
             else:
                 return False
         except:
             return False
-    
+
     if Authorize():
         # 认证有权限
-        if path == "/api/ws": # websocket 接口
+        if path == "/api/ws":  # websocket 接口
             return None
         elif (re.search("/api/.*", path)):
             ### API CURD 接口处###
-            return http.HTTPStatus.OK, [('content-type', mimetypes.MimeTypes().guess_type(path)[0])], b'api/pool'
+            try:
+                if (re.search("/api/config.*", path)):
+                    querys = urlparse.parse_qs(path.split('?')[1])
+                    assert 'method' in querys
+                    assert 'id' in querys
+                    assert 'value' in querys
+
+                    method = querys['method'][0]
+                    id_ = querys['id_'][0]
+                    value = querys['value'][0]
+
+                    if method == 'get':
+                        config_query = tuple(id_.split('.'))
+                        try:
+                            result = bytes(json.dumps(config.read(config_query)))
+                        except Exception("configQueryError"):
+                            raise
+
+                    elif method == 'update':
+                        config_write = tuple(id_.split('.'))
+                        try:
+                            config.write(config_write, value)
+                            result = b'success'
+                        except Exception:
+                            raise
+
+                return http.HTTPStatus.OK, [('content-type', mimetypes.MimeTypes().guess_type(path)[0])], result
+            except:
+                http.HTTPStatus.NOT_FOUND, [('content-type', 'text/html')], b'shit' # TODO @MARTIN 把这个改成错误返回值
         elif path == '/':
             # 根目录手动重写
             path = '/index.html'
-        elif path =='/dev':
+        elif path == '/dev':
             #  dev 文件手动重写
             path = '/dev.html'
     else:
@@ -48,7 +78,7 @@ async def process_request(path: str, request_headers):
             body = bytes(f.read())
             f.close()
             return http.HTTPStatus.UNAUTHORIZED, [('content-type', 'text/html')], body
-    if path == '/team' :
+    if path == '/team':
         ### team id  来自 config ###
         return http.HTTPStatus.OK, [], b'9118'
     try:
