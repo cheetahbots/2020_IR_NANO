@@ -5,6 +5,7 @@
 const {
   Stack,
   PrimaryButton,
+  DefaultButton,
   CommandBar,
   ICommandBarItemProps,
   PanelType,
@@ -20,7 +21,11 @@ const {
   IDividerAsProps,
   Label,
   ILabelStyles,
-  TooltipHost
+  TooltipHost,
+  Dialog,
+  DialogType,
+  DialogFooter,
+  ChoiceGroup
 } = window.Fabric
 const { useConstCallback } = window.FabricReactHooks
 
@@ -58,7 +63,8 @@ class SettingsIcon extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      isOpen: false
+      isOpen: false,
+      hideDialog: true
     }
   }
 
@@ -70,12 +76,20 @@ class SettingsIcon extends React.Component {
     this.setState({ isOpen: false })
   }
 
+  _showDialog = () => {
+    this.setState({ hideDialog: false });
+  };
+
+  _closeDialog = () => {
+    this.setState({ hideDialog: true });
+  };
+
   render() {
     const _items = [{
       key: 'Run',
       text: 'Run',
       iconProps: { iconName: 'Rocket' },
-      onClick: ()=>console.log("Run")
+      onClick: this._showDialog.bind()
     },
     {
       key: 'Settings',
@@ -89,9 +103,9 @@ class SettingsIcon extends React.Component {
       iconProps: { iconName: 'DeveloperTools' },
       onClick: () => {
         window.open(
-            '/dev',
-            '_blank' // <- This is what makes it open in a new window.
-          );
+          '/dev',
+          '_blank' // <- This is what makes it open in a new window.
+        );
       }
     },
     ]
@@ -100,6 +114,42 @@ class SettingsIcon extends React.Component {
         <CommandBar
           items={_items}
         />
+        <Dialog
+          hidden={this.state.hideDialog}
+          onDismiss={this._closeDialog}
+          dialogContentProps={{
+            type: DialogType.largeHeader,
+            title: 'LOAD robot',
+            subText: 'Configurations before the game.'
+          }}
+          modalProps={{
+            isBlocking: false,
+            styles: { main: { maxWidth: 450 } }
+          }}
+        >
+          <ChoiceGroup
+            options={[
+              {
+                key: 'A',
+                text: 'Option A'
+              },
+              {
+                key: 'B',
+                text: 'Option B',
+                checked: true
+              },
+              {
+                key: 'C',
+                text: 'Option C',
+                disabled: true
+              }
+            ]}
+          />
+          <DialogFooter>
+            <PrimaryButton onClick={this._closeDialog} text="Ready to Go" />
+            <DefaultButton onClick={this._closeDialog} text="Cancel" />
+          </DialogFooter>
+        </Dialog>
         <Panel isLightDismiss headerText='Settings' type={PanelType.large} isOpen={this.state.isOpen} onDismiss={this.dismissPanel.bind()} closeButtonAriaLabel='close'>
           <SettingContext></SettingContext>
         </Panel>
@@ -158,40 +208,132 @@ class VideoBlank extends React.Component {
 class SettingContext extends React.Component {
   constructor(props) {
     super(props)
-    this.items = [
-      { text: 'Cheetahbots', key: 'main', onClick: this._onBreadcrumbItemClicked },
-      { text: 'Parameters', key: 'main.1', onClick: this._onBreadcrumbItemClicked },
-    ];
+    this.state = { settings: [], schema: [] }
   }
-  _onBreadcrumbItemClicked = (ev, item) => {
-    console.log(`Breadcrumb item with key "${item.key}" has been clicked.`);
+
+  componentDidMount() {
+    fetch(`/api/config?id=DEFAULT&method=get&value=`)
+      .then((response) => { return response.json() })
+      .then((data) => {
+        this.setState({ settings: data.data });
+      });
   }
-  _getCustomDivider = () => {
-    const tooltipText = dividerProps.item ? dividerProps.item.text : '';
-    return (
-      <TooltipHost content={`Show ${tooltipText} contents`} calloutProps={{ gapSpace: 0 }}>
-        <span aria-hidden="true" style={{ cursor: 'pointer', padding: 5 }}>
-          /
-      </span>
-      </TooltipHost>
-    );
+
+  render() {
+    try {
+      var settings = this.state.settings
+      for (const property in settings) {
+        console.log(`${property}: ${settings[property]}`);
+      }
+      return (
+        <SettingsGroup settings={this.state.settings}></SettingsGroup>
+      );
+    } catch (e) {
+      const wrapperClass = mergeStyles({
+        padding: 2,
+        selectors: {
+          '& > .ms-Shimmer-container': {
+            margin: '10px 0'
+          }
+        }
+      });
+      return (
+        <Fabric className={wrapperClass}>
+          <Shimmer
+            width={'40%'}
+            shimmerElements={[
+              { type: ShimmerElementType.circle },
+              { type: ShimmerElementType.gap, width: '2%' },
+              { type: ShimmerElementType.line }
+            ]}
+          />
+          <Shimmer
+            shimmerElements={[
+              { type: ShimmerElementType.gap, width: '10%' },
+              { type: ShimmerElementType.circle, height: 24 },
+              { type: ShimmerElementType.gap, width: '2%' },
+              { type: ShimmerElementType.line, height: 16, width: '20%' },
+              { type: ShimmerElementType.gap, width: '5%' },
+              { type: ShimmerElementType.line, height: 16, width: '20%' },
+              { type: ShimmerElementType.gap, width: '43%' },
+            ]}
+          />
+          <Shimmer
+            shimmerElements={[
+              { type: ShimmerElementType.gap, width: '10%' },
+              { type: ShimmerElementType.circle, height: 24 },
+              { type: ShimmerElementType.gap, width: '2%' },
+              { type: ShimmerElementType.line, height: 16, width: '5%' },
+              { type: ShimmerElementType.gap, width: '2%' },
+              { type: ShimmerElementType.line, height: 16, width: '17%' },
+              { type: ShimmerElementType.gap, width: '5%' },
+              { type: ShimmerElementType.line, height: 16, width: '16%' },
+              { type: ShimmerElementType.gap, width: '10%' },
+              { type: ShimmerElementType.line, height: 16, width: '15%' },
+              { type: ShimmerElementType.gap, width: '18%' },
+            ]}
+          />
+          <Shimmer
+            width={'40%'}
+            shimmerElements={[
+              { type: ShimmerElementType.circle },
+              { type: ShimmerElementType.gap, width: '2%' },
+              { type: ShimmerElementType.line }
+            ]}
+          />
+          <Shimmer
+            shimmerElements={[
+              { type: ShimmerElementType.gap, width: '10%' },
+              { type: ShimmerElementType.circle, height: 24 },
+              { type: ShimmerElementType.gap, width: '2%' },
+              { type: ShimmerElementType.line, height: 16, width: '5%' },
+              { type: ShimmerElementType.gap, width: '2%' },
+              { type: ShimmerElementType.line, height: 16, width: '17%' },
+              { type: ShimmerElementType.gap, width: '5%' },
+              { type: ShimmerElementType.line, height: 16, width: '16%' },
+              { type: ShimmerElementType.gap, width: '10%' },
+              { type: ShimmerElementType.line, height: 16, width: '15%' },
+              { type: ShimmerElementType.gap, width: '18%' },
+            ]}
+          />
+          <Shimmer
+            shimmerElements={[
+              { type: ShimmerElementType.gap, width: '10%' },
+              { type: ShimmerElementType.circle, height: 24 },
+              { type: ShimmerElementType.gap, width: '2%' },
+              { type: ShimmerElementType.line, height: 16, width: '20%' },
+              { type: ShimmerElementType.gap, width: '5%' },
+              { type: ShimmerElementType.line, height: 16, width: '20%' },
+              { type: ShimmerElementType.gap, width: '43%' },
+            ]}
+          />
+          <Shimmer
+            shimmerElements={[
+              { type: ShimmerElementType.gap, width: '10%' },
+              { type: ShimmerElementType.circle, height: 24 },
+              { type: ShimmerElementType.gap, width: '2%' },
+              { type: ShimmerElementType.line, height: 16, width: '5%' },
+              { type: ShimmerElementType.gap, width: '2%' },
+              { type: ShimmerElementType.line, height: 16, width: '17%' },
+              { type: ShimmerElementType.gap, width: '5%' },
+              { type: ShimmerElementType.line, height: 16, width: '16%' },
+              { type: ShimmerElementType.gap, width: '10%' },
+              { type: ShimmerElementType.line, height: 16, width: '15%' },
+              { type: ShimmerElementType.gap, width: '18%' },
+            ]}
+          />
+        </Fabric>
+      );
+    }
   }
-  _getCustomOverflowIcon = () => {
-    return <Icon iconName={'ChevronDown'} />;
-  }
+}
+
+class SettingsGroup extends React.Component {
+
   render() {
     return (
-      <div>
-        <Breadcrumb
-          items={this.items}
-          maxDisplayedItems={3}
-          ariaLabel="Breadcrumb"
-          overflowAriaLabel="More links"
-        />
-
-
-      </div>
-    );
+      <div>test</div>
+    )
   }
 }
 
