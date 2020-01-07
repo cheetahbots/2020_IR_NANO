@@ -1221,7 +1221,7 @@ function initializeIcons(baseUrl, options) {
         },
         fontFace: {
             fontFamily: "\"FabricMDL2Icons-0\"",
-            src: "url('" + baseUrl + "/fabric-icons-0-467ee27f.woff') format('woff')"
+            src: "url('" + baseUrl + "fabric-icons-0-467ee27f.woff') format('woff')"
         },
         icons: {
             'PageLink': '\uE302',
@@ -1354,7 +1354,7 @@ function initializeIcons(baseUrl, options) {
         },
         fontFace: {
             fontFamily: "\"FabricMDL2Icons-1\"",
-            src: "url('" + baseUrl + "/fabric-icons-1-4d521695.woff') format('woff')"
+            src: "url('" + baseUrl + "fabric-icons-1-4d521695.woff') format('woff')"
         },
         icons: {
             'Paste': '\uE77F',
@@ -3696,7 +3696,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-var DEFAULT_BASE_URL = '/font';
+var DEFAULT_BASE_URL = '/font/';
 function initializeIcons(baseUrl, options) {
     if (baseUrl === void 0) { baseUrl = DEFAULT_BASE_URL; }
     [_fabric_icons__WEBPACK_IMPORTED_MODULE_0__["initializeIcons"], _fabric_icons_0__WEBPACK_IMPORTED_MODULE_1__["initializeIcons"], _fabric_icons_1__WEBPACK_IMPORTED_MODULE_2__["initializeIcons"], _fabric_icons_2__WEBPACK_IMPORTED_MODULE_3__["initializeIcons"], _fabric_icons_3__WEBPACK_IMPORTED_MODULE_4__["initializeIcons"], _fabric_icons_4__WEBPACK_IMPORTED_MODULE_5__["initializeIcons"], _fabric_icons_5__WEBPACK_IMPORTED_MODULE_6__["initializeIcons"], _fabric_icons_6__WEBPACK_IMPORTED_MODULE_7__["initializeIcons"], _fabric_icons_7__WEBPACK_IMPORTED_MODULE_8__["initializeIcons"], _fabric_icons_8__WEBPACK_IMPORTED_MODULE_9__["initializeIcons"], _fabric_icons_9__WEBPACK_IMPORTED_MODULE_10__["initializeIcons"], _fabric_icons_10__WEBPACK_IMPORTED_MODULE_11__["initializeIcons"], _fabric_icons_11__WEBPACK_IMPORTED_MODULE_12__["initializeIcons"], _fabric_icons_12__WEBPACK_IMPORTED_MODULE_13__["initializeIcons"], _fabric_icons_13__WEBPACK_IMPORTED_MODULE_14__["initializeIcons"], _fabric_icons_14__WEBPACK_IMPORTED_MODULE_15__["initializeIcons"], _fabric_icons_15__WEBPACK_IMPORTED_MODULE_16__["initializeIcons"], _fabric_icons_16__WEBPACK_IMPORTED_MODULE_17__["initializeIcons"], _fabric_icons_17__WEBPACK_IMPORTED_MODULE_18__["initializeIcons"]].forEach(function (initialize) { return initialize(baseUrl, options); });
