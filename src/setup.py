@@ -1,7 +1,7 @@
 
 from .hardware.secondOrderSystem import springMass
-from .sensor.network import NetworkTable, SocketData
-from .strategy.test import Counter, numberAdder, numberGenerator, Observer
+from .sensor.network import NetworkTableHandler
+from .strategy.test import Counter, numberAdder, numberGenerator, Observer, axisControl
 
 
 def SETUP_MODULES(sys):
@@ -24,11 +24,19 @@ def SETUP_MODULES(sys):
     "***EDIT BELOW!***"
     ct1 = Counter()
     use(ct1)
-    SM = springMass()
-    use(SM)
+    # SM = springMass()
+    # use(SM)
 
-    obs1 = Observer().addInput(ct1)
-    use(obs1)
+    # obs1 = Observer().addInput(ct1)
+    # use(obs1)
+
+    nwtb = NetworkTableHandler()
+
+    motorController = axisControl().addInput(nwtb)
+
+    nwtb.addInput(motorController)
+    use(nwtb)
+    use(motorController)    
 
     # sys.addInput(numAdd)
 

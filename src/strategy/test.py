@@ -1,4 +1,27 @@
 from src.default import *
+from ..map import *
+
+
+class axisControl(ModuleDynamic):
+    def __init__(self):
+        ModuleDynamic.__init__(self)
+        self.require(AXIS(1))
+    async def initialize(self):
+        return True
+
+    async def work(self):
+        self.log("working")
+
+        while self.activated:
+            await self.sleep(0)
+            inputJSON = await self.input
+                        # if num > 10:
+            #     self.activated = False
+            result = dict()
+            if AXIS(1) in inputJSON:
+                result[AXIS(1)] = inputJSON[AXIS(1)]
+            print(result)
+            self.output = result
 
 
 class Counter(ModuleDynamic):

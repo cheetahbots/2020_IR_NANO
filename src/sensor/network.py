@@ -1,63 +1,74 @@
+from networktables import NetworkTables, NetworkTable
+from ..default import *
+from ..map import *
 # DOC: https://pynetworktables.readthedocs.io/en/latest/api.html#networktables.NetworkTable.getBoolean
 #! pip install pynetworktables
-from ..default import *
-from networktables import NetworkTables
-import threading
 
-class NetworkTable(ModuleDynamic):
+
+class NetworkTableHandler(ModuleDynamic):
     def __init__(self):
         ModuleDynamic.__init__(self)
-        self.table = None
+        self.table_NANO_to_RIO: NetworkTable = None
+        self.table_RIO_to_NANO: NetworkTable = None
 
-    def initialize(self):
-        cond = threading.Condition()
-        notified = [False]
-
+    async def initialize(self):
+        # cond = threading.Condition()
+        # notified = [False]
 
         def connectionListener(connected, info):
             print(info, '; Connected=%s' % connected)
-            with cond:
-                notified[0] = True
-                cond.notify()
-
+            # with cond:
+            #     notified[0] = True
+            #     cond.notify()
 
         NetworkTables.initialize(server='10.80.15.2')
-        NetworkTables.addConnectionListener(connectionListener, immediateNotify=True)
 
-        with cond:
-            print("Waiting")
-            if not notified[0]:
-                cond.wait()
+        NetworkTables.addConnectionListener(
+            connectionListener, immediateNotify=True)
 
-        print("Connected!")
-        self.table = NetworkTables.getTable('datatable')
+        self.table_NANO_to_RIO = NetworkTables.getTable('NANO-TO-RIO')
+        self.table_RIO_to_NANO = NetworkTables.getTable('RIO-TO-NANO')
+
+        # self.sensorTable =
+
         return True
 
     async def work(self):
         while self.activated:
-            await self.sleep(0.5)
+            await self.sleep(0)
+            inputJSON = await self.input
+            # print(inputJSON)
+            mapped = CANMAP(inputJSON)
+            for key in mapped: 
+                appendData(key, mapped[key], self.table_NANO_to_RIO)
 
-            # query network table
+            
 
-            self.output = None
+            # read RIO-TO-NANO and put into OUTPUT TODO
+            result = dict()
+            for key in self.table_RIO_to_NANO.getKeys():
+                result[key] = self.table_RIO_to_NANO.getValue(key, None)
+            # print(result)
+            self.output = INPUTMAP(result)
 
 
-class SocketData(ModuleReactive):
-    def __init__(self):
-        ModuleDynamic.__init__(self)
-        # self.__output = None
-        self.__outputData = dict()
-        if not hasattr(self, 'priority'):
-            self.priority = 0
+def appendData(key, data, table: NetworkTable):
+    key = str(key)
+    if isinstance(data, (str)):
+        table.putString(key, data)
+        
+    elif isinstance(data, (int, float)):
+        table.putNumber(key, data)
 
-    @property
-    def output(self):
-        return {"data": self.__outputData, "priority": self.priority}
+    elif isinstance(data, (bool)):
+        table.putBoolean(key, data)
 
-    @output.setter
-    def output(self, value):
+    elif isinstance(data, (bytes)):
+        table.putRaw(key, data)
 
-        self.__outputData = value
+    elif isinstance(data, (dict)):
+        table.putString(key, data)
 
-    async def work(self):
-        return self.output
+    else:
+        table.putValue(key, data)
+    return True

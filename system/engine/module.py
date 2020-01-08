@@ -51,15 +51,26 @@ class reactiveInput():
         return self
 
 
-class moduleInput():
+class moduleInput(Activatable):
     def __init__(self):
+        Activatable.__init__(self)
         self.dynamHandler = None
         self.reactHandler = None
+        self.dataRequired = []
+
+    def require(self,*args):
+        self.dataRequired.extend(list(args))
 
     @property
     async def input(self):
         result = dict()
         outputs = await self.__fetchOutput()
+
+        for name in self.dataRequired:
+            if name not in outputs:
+                if name not in outputs:
+                    # raise Exception(f'fuck, required data key {name} not provided')
+                    pass
 
         outputs.sort(key=lambda x: x['priority'])
         for output in outputs:
@@ -116,11 +127,10 @@ class moduleOutput():
         self.__outputData = value
 
 
-class Module(Activatable, moduleInput):
+class Module(moduleInput):
     '所有模块的基类.'
 
     def __init__(self):
-        Activatable.__init__(self)
         moduleInput.__init__(self)
         self.priority = 0
         self.log('instance created')
