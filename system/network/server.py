@@ -10,7 +10,7 @@ import Lib.http as http
 import Lib.mimetypes as mimetypes
 import Lib.re as re
 import Lib.urllib.parse as urlparse
-from src.map import update_MAP_SENSOR_SIGNAL, update_MAP_SIGNAL_CAN
+from src.map import sensor_signal, signal_CAN
 from system import config
 
 from ..engine import Loggable, ModuleDynamic
@@ -65,9 +65,9 @@ async def process_request(path: str, request_headers):
                                 {"code": 200, "data": {"id": id_, "value": value}})
                             # Immediate reload mapping if altered
                             if config_query[0] == 'SENSORMAP':
-                                update_MAP_SENSOR_SIGNAL()
+                                sensor_signal.update()
                             elif config_query[0] == 'SIGNALMAP':
-                                update_MAP_SIGNAL_CAN()
+                                signal_CAN.update()
                         except Exception:
                             raise
 

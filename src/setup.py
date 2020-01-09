@@ -2,7 +2,7 @@
 from .hardware import *
 from .sensor import *
 from .strategy import *
-from .map import AXIS
+from .map.items import *
 
 __all__ = ['SETUP_MODULES']
 
@@ -35,9 +35,9 @@ def SETUP_MODULES(sys):
 
     nwtb = NetworkTableHandler()
 
-    motorController = axisControl().require(AXIS[1]).addInput(nwtb)
+    motorController = axisControl(nwtb).I(AXIS.mainH)
 
-    nwtb.addInput(motorController)
+    nwtb.A(motorController)
 
     use(nwtb)
     use(motorController)

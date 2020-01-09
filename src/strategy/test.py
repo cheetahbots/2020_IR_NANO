@@ -1,11 +1,15 @@
 from ..default import *
+from ..map.signalTypes import MOTOR_VOL, AXIS
+from ..map.items import MOTORS
 
 
 class axisControl(ModuleDynamic):
     """Generate control signal from joystick axis input
     """
-    def __init__(self):
-        ModuleDynamic.__init__(self)
+
+    def __init__(self, *attachModules):
+        ModuleDynamic.__init__(self, *attachModules)
+        self.setInputType = (AXIS, AXIS)
 
     async def initialize(self):
         return True
@@ -15,13 +19,11 @@ class axisControl(ModuleDynamic):
 
         while self.activated:
             await self.sleep(0)
-            inputJSON = await self.input
-                        # if num > 10:
-            #     self.activated = False
+            A1, A2 = await self.input
             result = dict()
-            # if AXIS(1) in inputJSON:
-            #     result[AXIS(1)] = inputJSON[AXIS(1)]
+
             print(result)
+            result[MOTORS.left] = A1
             self.output = result
 
 
@@ -83,8 +85,8 @@ class numberGenerator(ModuleReactive):
 
 
 class numberAdder(ModuleReactive):
-    def __init__(self):
-        ModuleReactive.__init__(self)
+    def __init__(self, *args):
+        ModuleReactive.__init__(self, args)
 
     async def work(self):
         inputJSON = await self.input

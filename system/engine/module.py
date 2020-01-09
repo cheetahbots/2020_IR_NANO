@@ -57,31 +57,57 @@ class moduleInput(Activatable):
         self.dynamHandler = None
         self.reactHandler = None
         self.dataRequired = []
+        self.__typeInput = []
 
-    def require(self, *args):
-        "指定一个必须出现的信号源.请确保导入src/map.py"
-        
-        self.dataRequired.extend(list(args))
+    def signalIN(self, *signals):
+        "指定该模组监听的信号ID."
+        if len(self.__typeInput):  # 需要match pattern
+            if len(signals) <= len(self.__typeInput):  # require没传太多
+                for i in range(len(signals)):
+                    sig = signals[i]
+                    if sig._type == self.__typeInput[i]._type:
+                        self.dataRequired.append(sig)
+                    else:
+                        raise Exception("Types do not match")
+                for i in range(len(signals), len(self.__typeInput)):
+                    if sig._type == self.__typeInput[i]._type:
+                        self.dataRequired.append(sig)
+                    else:
+                        raise Exception("Types do not match")
+            else:
+                raise Exception("too many requires given")
+        self.dataRequired.extend(signals)
+        return self
+
+    I = signalIN
+
+    def setInputPattern(self, *args):
+        self.__typeInput.extend(args)
         return self
 
     @property
     async def input(self):
-        result = dict()
         outputs = await self.__fetchOutput()
 
-        for name in self.dataRequired:
-            if name not in outputs:
-                if name not in outputs:
-                    # raise Exception(f'fuck, required data key {name} not provided')
-                    pass
-
         outputs.sort(key=lambda x: x['priority'])
-        for output in outputs:
-            data = output['data']
-            for key in data:
-                if key not in result:
-                    result[key] = data[key]
-        return result
+        if len(self.dataRequired):
+            result = list()
+            for req in self.dataRequired:
+                for output in outputs:
+                    data = output['data']
+                    if req in data:
+                        result.append(data[req])
+                        break
+                raise Exception(f'required data {req} not found.')
+            return set(result)
+        else:
+            result = dict()
+            for output in outputs:
+                data = output['data']
+                for key in data:
+                    if key not in result:
+                        result[key] = data[key]
+            return result
 
     async def __fetchOutput(self):
         outputs = list()
@@ -102,6 +128,8 @@ class moduleInput(Activatable):
                 self.__addReactInput(module)
         return self
 
+    A = addInput
+
     def __addDynamInput(self, pointer):
         if self.dynamHandler is None:
             self.dynamHandler = dynamicInput()
@@ -118,8 +146,35 @@ class moduleOutput():
 
     def __init__(self):
         self.__outputData = dict()
+        # self.__typeOutput = []
         if not hasattr(self, 'priority'):
             self.priority = 0
+
+    # def signalOUT(self, *signals):
+    #     "指定该模组输出信号的ID."
+    #     if len(self.__typeInput):  # 需要match pattern
+    #         if len(signals) <= len(self.__typeInput):  # require没传太多
+    #             for i in range(len(signals)):
+    #                 sig = signals[i]
+    #                 if sig._type == self.__typeInput[i]._type:
+    #                     self.dataRequired.append(sig)
+    #                 else:
+    #                     raise Exception("Types do not match")
+    #             for i in range(len(signals), len(self.__typeInput)):
+    #                 if sig._type == self.__typeInput[i]._type:
+    #                     self.dataRequired.append(sig)
+    #                 else:
+    #                     raise Exception("Types do not match")
+    #         else:
+    #             raise Exception("too many requires given")
+    #     self.dataRequired.extend(signals)
+    #     return self
+
+    # I = signalOUT
+
+    # def setOutputPattern(self, *args):
+    #     self.__typeOutput.extend(args)
+    #     return self
 
     @property
     def output(self):
@@ -133,8 +188,9 @@ class moduleOutput():
 class Module(moduleInput):
     '所有模块的基类.'
 
-    def __init__(self):
+    def __init__(self, *args):
         moduleInput.__init__(self)
+        [self.addInput(M) for M in args]
         self.priority = 0
         self.log('instance created')
 
@@ -158,8 +214,8 @@ class Module(moduleInput):
 class ModuleDynamic(Module, moduleOutput):
     'dynamic模块中的worker方法是单独的线程，循环执行以更新output.'
 
-    def __init__(self):
-        Module.__init__(self)
+    def __init__(self, *args):
+        Module.__init__(self, *args)
         moduleOutput.__init__(self)
 
     async def run(self) -> 'Running Thread':
@@ -186,8 +242,8 @@ class ModuleDynamic(Module, moduleOutput):
 class ModuleReactive(Module):
     'reactive模块中的worker方法返回异步结果.'
 
-    def __init__(self):
-        Module.__init__(self)
+    def __init__(self, *args):
+        Module.__init__(self, args)
 
     async def run(self) -> 'Running Thread':
         if not self.activated:

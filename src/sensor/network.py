@@ -1,7 +1,8 @@
 from networktables import NetworkTables
 from networktables.networktable import NetworkTable
 from ..default import ModuleDynamic
-from ..map import CANMAP, INPUTMAP
+from ..map import signal_CAN
+from ..map import sensor_signal
 # DOC: https://pynetworktables.readthedocs.io/en/latest/api.html#networktables.NetworkTable.getBoolean
 #! pip install pynetworktables
 
@@ -39,7 +40,7 @@ class NetworkTableHandler(ModuleDynamic):
             await self.sleep(0)
             inputJSON = await self.input
             # print(inputJSON)
-            mapped = CANMAP(inputJSON)
+            mapped = signal_CAN.MAP(inputJSON)
             for key in mapped:
                 appendData(key, mapped[key], self.table_NANO_to_RIO)
 
@@ -48,7 +49,7 @@ class NetworkTableHandler(ModuleDynamic):
             for key in self.table_RIO_to_NANO.getKeys():
                 result[key] = self.table_RIO_to_NANO.getValue(key, None)
             # print(result)
-            self.output = INPUTMAP(result)
+            self.output = sensor_signal.MAP(result)
 
 
 def appendData(key, data, table: NetworkTable):
