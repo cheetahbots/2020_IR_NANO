@@ -35,7 +35,7 @@ def SETUP_MODULES(sys):
 
     nwtb = NetworkTableHandler()
 
-    motorController = axisControl().require(AXIS(1)).addInput(nwtb)
+    motorController = axisControl().require(AXIS[1]).addInput(nwtb)
 
     nwtb.addInput(motorController)
 

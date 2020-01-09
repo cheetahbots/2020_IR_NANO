@@ -1,38 +1,45 @@
-__all__ = ['CAM', 'PIN', 'BTN', 'AXIS',
+__all__ = ['CAM', 'PIN', 'BUTTON', 'AXIS',
            'update_MAP_SENSOR_SIGNAL', 'update_MAP_SIGNAL_CAN',
            'CANMAP', 'INPUTMAP']
-
 from system import config
 
 
-def CAM(i):
-    'custom item id'
-    return f'CAM{i}'
+class SignalMapper():
+    'use [] to specify unique ID or multiplie IDs. Work like an array and a dict.'
+
+    def __init__(self, name):
+        self.name = name
+
+    def __getitem__(self, key):
+        if isinstance(key, (int, float, str)):
+            return self.name + str(key)
+        elif isinstance(key, (tuple, list)):
+            result = list()
+            for subkey in key:
+                item = self.__getitem__(subkey)
+                result.extend(self.__getitem__(subkey)) if isinstance(
+                    item, (tuple, list)) else result.append(item)
+            return list(set(result))
+        elif isinstance(key, slice):
+            # key.indices()
+            return [self.name + str(num) for num in range(key.start, key.stop, key.step if key.step is not None else 1)]
+        else:
+            raise Exception('bad key type')
 
 
-def PIN(i):
-    'custom item id'
-    return f'PIN{i}'
-
-
-def BTN(i):
-    'custom item id'
-    return f'BTN{i}'
-
-
-def AXIS(i):
-    'custom item id'
-    return f'AXIS{i}'
-
+CAM = SignalMapper('CAM')
+PIN = SignalMapper('PIN')
+BUTTON = SignalMapper('BTN')
+AXIS = SignalMapper('AXIS')
 
 MAP_SIGNAL_CAN = {
     # "[signalName]": "[CANID]",
-    AXIS(1): 1
+    AXIS[1]: 1
 }
 
 MAP_SENSOR_SIGNAL = {
     # "[NTkeyname]": "[signalName]",
-    "Joystick_0_Axis_1": AXIS(1),
+    "Joystick_0_Axis_1": AXIS[1],
 }
 
 
