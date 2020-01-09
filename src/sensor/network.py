@@ -1,4 +1,5 @@
-from networktables import NetworkTables, NetworkTable
+from networktables import NetworkTables
+from networktables.networktable import NetworkTable
 from ..default import *
 from ..map import *
 # DOC: https://pynetworktables.readthedocs.io/en/latest/api.html#networktables.NetworkTable.getBoolean
