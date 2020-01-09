@@ -1,4 +1,4 @@
-from src.default import *
+from ..default import *
 
 
 class PID(ModuleReactive):

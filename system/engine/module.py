@@ -2,8 +2,8 @@ import asyncio
 import math
 import random
 
-from ..config import config
-from .util import Activatable
+from system import config
+from . import Activatable
 
 
 class dynamicInput():
@@ -58,8 +58,11 @@ class moduleInput(Activatable):
         self.reactHandler = None
         self.dataRequired = []
 
-    def require(self,*args):
+    def require(self, *args):
+        "指定一个必须出现的信号源.请确保导入src/map.py"
+        
         self.dataRequired.extend(list(args))
+        return self
 
     @property
     async def input(self):

@@ -2,18 +2,18 @@ import asyncio
 import json
 import time as t
 from typing import Optional, Union
-import Lib.re as re
-import Lib.configparser as cookieparser
 
 import websockets
 
+import Lib.configparser as cookieparser
 import Lib.http as http
 import Lib.mimetypes as mimetypes
+import Lib.re as re
 import Lib.urllib.parse as urlparse
+from src.map import update_MAP_SENSOR_SIGNAL, update_MAP_SIGNAL_CAN
+from system import config
 
-from ..config import config
-from ..engine.module import ModuleDynamic
-from ..engine.util import Loggable
+from ..engine import Loggable, ModuleDynamic
 
 
 async def process_request(path: str, request_headers):
@@ -63,6 +63,11 @@ async def process_request(path: str, request_headers):
                             config.write(config_query, value)
                             result = json.dumps(
                                 {"code": 200, "data": {"id": id_, "value": value}})
+                            # Immediate reload mapping if altered
+                            if config_query[0] == 'SENSORMAP':
+                                update_MAP_SENSOR_SIGNAL()
+                            elif config_query[0] == 'SIGNALMAP':
+                                update_MAP_SIGNAL_CAN()
                         except Exception:
                             raise
 

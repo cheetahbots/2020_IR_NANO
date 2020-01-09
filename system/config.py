@@ -1,14 +1,13 @@
+__all__ = ['config']
+
 import configparser
 import json
-from typing import Optional, Tuple, Union
+from typing import Tuple, Union
 
 from .lib.schema import And, Optional, Schema, Use
 
-# from .engine.util import Loggable
 
-
-# class __configHandler(Loggable):
-class __configHandler():
+class configHandler():
     def __init__(self):
         # Loggable.__init__(self)
         # 生成ConfigParser对象
@@ -60,4 +59,5 @@ class __configHandler():
             return True
         raise Exception('configQueryError')
 
-config = __configHandler()
+
+config = configHandler()

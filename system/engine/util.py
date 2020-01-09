@@ -1,5 +1,7 @@
 import logging
 
+__all__ = ['Loggable', 'Activatable']
+
 
 class Loggable():
     '通过self.log方法在消息中标出当前模块信息'

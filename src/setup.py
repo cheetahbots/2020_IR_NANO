@@ -1,7 +1,10 @@
 
-from .hardware.secondOrderSystem import springMass
-from .sensor.network import NetworkTableHandler
-from .strategy.test import Counter, numberAdder, numberGenerator, Observer, axisControl
+from .hardware import *
+from .sensor import *
+from .strategy import *
+from .map import AXIS
+
+__all__ = ['SETUP_MODULES']
 
 
 def SETUP_MODULES(sys):
@@ -32,11 +35,12 @@ def SETUP_MODULES(sys):
 
     nwtb = NetworkTableHandler()
 
-    motorController = axisControl().addInput(nwtb)
+    motorController = axisControl().require(AXIS(1)).addInput(nwtb)
 
     nwtb.addInput(motorController)
+
     use(nwtb)
-    use(motorController)    
+    use(motorController)
 
     # sys.addInput(numAdd)
 

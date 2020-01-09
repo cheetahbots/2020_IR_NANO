@@ -1,11 +1,12 @@
-from src.default import *
-from ..map import *
+from ..default import *
 
 
 class axisControl(ModuleDynamic):
+    """Generate control signal from joystick axis input
+    """
     def __init__(self):
         ModuleDynamic.__init__(self)
-        self.require(AXIS(1))
+
     async def initialize(self):
         return True
 
@@ -18,8 +19,8 @@ class axisControl(ModuleDynamic):
                         # if num > 10:
             #     self.activated = False
             result = dict()
-            if AXIS(1) in inputJSON:
-                result[AXIS(1)] = inputJSON[AXIS(1)]
+            # if AXIS(1) in inputJSON:
+            #     result[AXIS(1)] = inputJSON[AXIS(1)]
             print(result)
             self.output = result
 

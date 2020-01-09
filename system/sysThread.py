@@ -1,13 +1,13 @@
+__all__ = ['system']
+
 import asyncio
-
-from src.setup import SETUP_MODULES
-
-from ..config import config
-from .util import Activatable, Loggable
-from ..network.server import WebServer
 from typing import Awaitable, List, Optional
 
-# from .network import socketConnection
+from src import SETUP_MODULES
+
+from system import config
+from .engine import Activatable, Loggable
+from .network import WebServer
 
 
 def conf(opt): return config.read(('system', opt))
@@ -74,6 +74,10 @@ class System(Loggable):
                 self.__socketHandler.attachDataListener(ins)
         self.__recur_inst_list.append(self.__socketHandler)
 
+    async def runHandler(self):
+        await self.__thread_handler.run()
+        return True
+
     async def run(self):
         self.log('start dynamic modules')
         await self.attachThread([m.run() for m in self.__recur_inst_list])
@@ -102,3 +106,6 @@ class System(Loggable):
 
     def addInput(self, module):
         self.__outputHooker = module
+
+
+system = System(ThreadHandler())
