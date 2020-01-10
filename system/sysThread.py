@@ -3,7 +3,7 @@ __all__ = ['system']
 import asyncio
 from typing import Awaitable, List, Optional
 
-from src import SETUP_MODULES
+import src
 
 from system import config
 from .engine import Activatable, Loggable
@@ -56,11 +56,11 @@ class System(Loggable):
         self.__thread_handler = thread_handler
         self.__outputHooker = None
         # Init Modules
-        self.__inst_list = SETUP_MODULES(self)
-        self.__recur_inst_list = [
-            ins for ins in self.__inst_list if ins.isDynamic]
-        self.__statc_inst_list = [
-            ins for ins in self.__inst_list if not ins.isDynamic]
+        self.__modules = src.loadedModules
+        self.__modules_dynam = [
+            ins for ins in self.__modules if ins.isDynamic]
+        self.__modules_react = [
+            ins for ins in self.__modules if not ins.isDynamic]
         self.log('system initiate')
         # Init Network
         # self.__socketHandler = socketConnection(self)
@@ -69,27 +69,17 @@ class System(Loggable):
         #         self.__socketHandler.attachDataListener(ins)
         # self.__recur_inst_list.append(self.__socketHandler)
         self.__socketHandler = WebServer(self)
-        for ins in self.__inst_list:
+        for ins in self.__modules:
             if ins.__class__.__name__ == "socketData":
                 self.__socketHandler.attachDataListener(ins)
-        self.__recur_inst_list.append(self.__socketHandler)
+        self.__modules_dynam.append(self.__socketHandler)
 
     async def runHandler(self):
         await self.__thread_handler.run()
-        return True
 
     async def run(self):
         self.log('start dynamic modules')
-        await self.attachThread([m.run() for m in self.__recur_inst_list])
-        self.log('start reactive modules')
-        if not self.__outputHooker is None:
-            # print(await self.__outputHooker.run())
-            # for _ in range(20):
-            while True:
-                await asyncio.sleep(0.5)
-                print(await self.__outputHooker.run())
-
-        # await self.shutdown()
+        await self.attachThread([m.run() for m in self.__modules_dynam])
 
     async def attachThread(self, futures):
         self.__thread_handler = await self.__thread_handler.available()
@@ -101,7 +91,7 @@ class System(Loggable):
         self.log('system shutting down')
         self.__thread_handler.activated = False
         # self.__threadM.son.activated = False
-        for inst in self.__inst_list:
+        for inst in self.__modules:
             inst.activated = False
 
     def addInput(self, module):
