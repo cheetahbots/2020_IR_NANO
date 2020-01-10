@@ -76,12 +76,13 @@ class moduleInput(Activatable):
                         raise Exception("Types do not match")
             else:
                 raise Exception("too many requires given")
-        self.dataRequired.extend(signals)
+        else:
+            self.dataRequired.extend(signals)
         return self
 
     I = signalIN
 
-    def setInputPattern(self, *args):
+    def setInputType(self, *args):
         self.__typeInput.extend(args)
         return self
 
@@ -98,8 +99,9 @@ class moduleInput(Activatable):
                     if req in data:
                         result.append(data[req])
                         break
-                raise Exception(f'required data {req} not found.')
-            return set(result)
+                # raise Exception(f'required data {req} not found.')
+                result.append(None)
+            return tuple(result)
         else:
             result = dict()
             for output in outputs:
@@ -193,6 +195,17 @@ class Module(moduleInput):
         [self.addInput(M) for M in args]
         self.priority = 0
         self.log('instance created')
+        self.isModule = True
+
+    def setPriority(self, num):
+        if isinstance(num, (int, float)):
+            self.priority = num
+            return self
+        else:
+            raise Exception(
+                f'invalid priority val {num} with type {num.__class__.__name__}')
+
+    P = setPriority
 
     async def run(self):
         raise NotImplementedError

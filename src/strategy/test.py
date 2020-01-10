@@ -9,7 +9,7 @@ class axisControl(ModuleDynamic):
 
     def __init__(self, *attachModules):
         ModuleDynamic.__init__(self, *attachModules)
-        self.setInputType = (AXIS, AXIS)
+        self.setInputType(AXIS, AXIS)
 
     async def initialize(self):
         return True
@@ -23,8 +23,9 @@ class axisControl(ModuleDynamic):
             result = dict()
 
             print(result)
-            result[MOTORS.left] = A1
-            self.output = result
+            if A1 is not None:
+                result[MOTORS.left] = A1
+                self.output = result
 
 
 class Counter(ModuleDynamic):
