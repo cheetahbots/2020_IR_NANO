@@ -71,6 +71,9 @@ async def process_request(path: str, request_headers):
                         except Exception:
                             raise
 
+                if(re.search("/api/schema.*", path)):
+                    result = '{"code": 200, "data": '+config.read_json_schema()+'})'
+
                 return http.HTTPStatus.OK, [('content-type', 'application/json')], result.encode('ascii')
             except:
                 return http.HTTPStatus.INTERNAL_SERVER_ERROR, [('content-type', 'text/html')], b'{"code":"500"}'

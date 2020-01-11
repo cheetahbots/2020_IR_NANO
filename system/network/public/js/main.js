@@ -25,7 +25,12 @@ const {
   Dialog,
   DialogType,
   DialogFooter,
-  ChoiceGroup
+  ChoiceGroup,
+  Slider,
+  SpinButton,
+  Checkbox,
+  TextField,
+  Toggle 
 } = window.Fabric
 const { useConstCallback } = window.FabricReactHooks
 
@@ -128,6 +133,7 @@ class SettingsIcon extends React.Component {
           }}
         >
           <ChoiceGroup
+            label="Pick one"
             options={[
               {
                 key: 'A',
@@ -141,10 +147,41 @@ class SettingsIcon extends React.Component {
               {
                 key: 'C',
                 text: 'Option C',
-                disabled: true
               }
             ]}
           />
+          <TextField label='TEST'></TextField>
+          <Slider
+            label="Snapping slider example"
+            min={0}
+            max={50}
+            step={10}
+            defaultValue={20}
+            showValue={true}
+            onChange={(value) => console.log(value)}
+            snapToStep
+          />
+          <SpinButton
+            defaultValue="0"
+            label={'Basic SpinButton:'}
+            min={0}
+            max={100}
+            step={1}
+            iconProps={{ iconName: 'IncreaseIndentLegacy' }}
+            // tslint:disable:jsx-no-lambda
+            onFocus={() => console.log('onFocus called')}
+            onBlur={() => console.log('onBlur called')}
+            incrementButtonAriaLabel={'Increase value by 1'}
+            decrementButtonAriaLabel={'Decrease value by 1'}
+          />
+          <Toggle label="Enabled and checked" defaultChecked onText="On" offText="Off"
+          />
+          <Stack>
+            <Checkbox label="Unchecked checkbox (uncontrolled)" />
+            <Checkbox label="Checked checkbox (uncontrolled)" defaultChecked />
+            <Checkbox label="Disabled checkbox" disabled />
+            <Checkbox label="Disabled checked checkbox" disabled defaultChecked />
+          </Stack>
           <DialogFooter>
             <PrimaryButton onClick={this._closeDialog} text="Ready to Go" />
             <DefaultButton onClick={this._closeDialog} text="Cancel" />

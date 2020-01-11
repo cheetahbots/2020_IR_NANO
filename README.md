@@ -2,6 +2,11 @@
 Codes in this repository is deployed to Nano dev board.
 This sub-project serves to define the control strategy for the robot.
 
+# Dependencies
+
+! pip install pynetworktables
+! pip install schema
+
 # Structure
 
 1. 控制层
