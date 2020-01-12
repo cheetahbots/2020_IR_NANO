@@ -72,7 +72,7 @@ async def process_request(path: str, request_headers):
                             raise
 
                 if(re.search("/api/schema.*", path)):
-                    result = '{"code": 200, "data": '+config.read_json_schema()+'})'
+                    result = '{"code": 200, "data": '+config.read_json_schema()+'}'
 
                 return http.HTTPStatus.OK, [('content-type', 'application/json')], result.encode('ascii')
             except:
