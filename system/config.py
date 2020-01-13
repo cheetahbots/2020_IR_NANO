@@ -17,9 +17,9 @@ class configHandler():
         self.__filename = 'system.conf'
         self.__config.read(self.__filename, encoding='utf-8')
         self.__configPerm.read(self.__filename, encoding='utf-8')
-        self.__schema = {'ingame': {'start_position': Or("A", "B", "C", only_one=True)}, 'environment': {'team': Use(
+        self.__schema = {'ingame': {'start_position': Or("A", "B","C")}, 'environment': {'team': Use(
             int), 'password': str},  'system': {'threadloadcycle': Use(float), 'production': Use(bool), 'enablebenchmarking': Use(bool)}}
-        self.__schema_json = {'ingame': {'start_position': Or("A", "B", "C", only_one=True)}, 'environment': {'team': 
+        self.__schema_json = {'ingame': {'start_position': Or("A", "B", "C")}, 'environment': {'team': 
             int, 'password': str},  'system': {'threadloadcycle':float, 'production': bool, 'enablebenchmarking': bool}}
         # 该bug 源自字典读取之后默认为str
 
@@ -50,8 +50,11 @@ class configHandler():
                     secName, opt)
             configDict[secName] = secDict
         del configDict['DEFAULT'] #去除 DEFAULT key
-        schema = Schema(self.__schema)
-        validated = schema.validate(configDict)
+        print(configDict)
+        try:
+            validated = Schema(self.__schema).validate(configDict)
+        except Exception as e:
+            print(e)
         return validated
 
     def read_json_schema(self):
