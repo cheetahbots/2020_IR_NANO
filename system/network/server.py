@@ -49,8 +49,9 @@ async def process_request(path: str, request_headers):
                         'id')[0] is not None else ''
                     value = querys.get('value')[0] if querys.get(
                         'value') is not None else ''
-
-                    config_query = tuple(id_.split('.'))
+                    config_query = tuple(id_.split('.')) + (None,)
+                    if id_=='DEFAULT':
+                        config_query = tuple('DEFAULT')
                     if method == 'get':
                         try:
                             result = json.dumps(

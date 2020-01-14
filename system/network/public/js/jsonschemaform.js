@@ -37,7 +37,8 @@ const widgetMap = {
         uri: "URLWidget",
         "data-url": "FileWidget",
         radio: "RadioWidget",
-        select: "SelectWidget",
+        select: "RadioWidget",
+        //select: "SelectWidget",
         textarea: "TextareaWidget",
         hidden: "HiddenWidget",
         date: "DateWidget",
@@ -2681,10 +2682,11 @@ function Label(props) {
         return null;
     }
     return (
-        <label className="control-label" htmlFor={id}>
-            {label}
-            {required && <span className="required">{REQUIRED_FIELD_SYMBOL}</span>}
-        </label>
+        null
+        // <label className="control-label" htmlFor={id}>
+        //     {label}
+        //     {required && <span className="required">{REQUIRED_FIELD_SYMBOL}</span>}
+        // </label>
     );
 }
 
@@ -3213,9 +3215,10 @@ function RadioWidget(props) {
         disabled,
         readonly,
         autofocus,
+        onChange,
         onBlur,
         onFocus,
-        onChange,
+        label,
         id,
     } = props;
     // Generating a unique field name to identify this set of radio buttons
@@ -3223,43 +3226,57 @@ function RadioWidget(props) {
     const { enumOptions, enumDisabled, inline } = options;
     // checked={checked} has been moved above name={name}, As mentioned in #349;
     // this is a temporary fix for radio button rendering bug in React, facebook/react#7630.
+    for (var i = 0; i < enumOptions.length; i++) {
+        enumOptions[i]["text"] = enumOptions[i]["label"];
+        enumOptions[i]["key"] = enumOptions[i]["value"];
+    }
     return (
-        <div className="field-radio-group" id={id}>
-            {enumOptions.map((option, i) => {
-                const checked = option.value === value;
-                const itemDisabled =
-                    enumDisabled && enumDisabled.indexOf(option.value) != -1;
-                const disabledCls =
-                    disabled || itemDisabled || readonly ? "disabled" : "";
-                const radio = (
-                    <span>
-                        <input
-                            type="radio"
-                            checked={checked}
-                            name={name}
-                            required={required}
-                            value={option.value}
-                            disabled={disabled || itemDisabled || readonly}
-                            autoFocus={autofocus && i === 0}
-                            onChange={_ => onChange(option.value)}
-                            onBlur={onBlur && (event => onBlur(id, event.target.value))}
-                            onFocus={onFocus && (event => onFocus(id, event.target.value))}
-                        />
-                        <span>{option.label}</span>
-                    </span>
-                );
-
-                return inline ? (
-                    <label key={i} className={`radio-inline ${disabledCls}`}>
-                        {radio}
-                    </label>
-                ) : (
-                        <div key={i} className={`radio ${disabledCls}`}>
-                            <label>{radio}</label>
-                        </div>
-                    );
-            })}
-        </div>
+        <ChoiceGroup id={id}
+            defaultSelectedKey={value}
+            label={label}
+            options={enumOptions}
+            onChange={onChange && ((event, option) => onChange(option.key))}
+            onBlur={onBlur && (event => onBlur(id, event.target.value))}
+            onFocus={onFocus && (event => onFocus(id, event.target.value))}
+            autoFocus={autofocus && i === 0}
+            required={required}
+        />
+        // <div className="field-radio-group" id={id}>
+        //     {enumOptions.map((option, i) => {
+        //         console.log(option)
+        //         const checked = option.value === value;
+        //         const itemDisabled =
+        //             enumDisabled && enumDisabled.indexOf(option.value) != -1;
+        //         const disabledCls =
+        //             disabled || itemDisabled || readonly ? "disabled" : "";
+        //         const radio = (
+        //             <span>
+        //                 <input
+        //                     type="radio"
+        //                     checked={checked}
+        //                     name={name}
+        //                     required={required}
+        //                     value={option.value}
+        //                     disabled={disabled || itemDisabled || readonly}
+        //                     autoFocus={autofocus && i === 0}
+        //                     onChange={_ => onChange(option.value)}
+        //                     onBlur={onBlur && (event => onBlur(id, event.target.value))}
+        //                     onFocus={onFocus && (event => onFocus(id, event.target.value))}
+        //                 />
+        //                 <span>{option.label}</span>
+        //             </span>
+        //         );
+        //         return inline ? (
+        //             <label key={i} className={`radio-inline ${disabledCls}`}>
+        //                 {radio}
+        //             </label>
+        //         ) : (
+        //                 <div key={i} className={`radio ${disabledCls}`}>
+        //                     <label>{radio}</label>
+        //                 </div>
+        //             );
+        //     })}
+        // </div>
     );
 }
 
@@ -3403,7 +3420,8 @@ SelectWidget.defaultProps = {
 
 function TextWidget(props) {
     const { BaseInput } = props.registry.widgets;
-    return <BaseInput {...props} />;
+    return <TextField {...props} />
+    // return <BaseInput {...props} />;
 }
 
 function DateWidget(props) {

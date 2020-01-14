@@ -50,7 +50,6 @@ class configHandler():
                     secName, opt)
             configDict[secName] = secDict
         del configDict['DEFAULT'] #去除 DEFAULT key
-        print(configDict)
         try:
             validated = Schema(self.__schema).validate(configDict)
         except Exception as e:
