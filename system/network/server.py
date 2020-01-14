@@ -49,11 +49,13 @@ async def process_request(path: str, request_headers):
                         'id')[0] is not None else ''
                     value = querys.get('value')[0] if querys.get(
                         'value') is not None else ''
-                    config_query = tuple(id_.split('.')) + (None,)
-                    if id_=='DEFAULT':
-                        config_query = tuple('DEFAULT')
+                    
                     if method == 'get':
                         try:
+                            if id_=='DEFAULT':
+                                config_query = tuple('DEFAULT')
+                            else:
+                                config_query = tuple(id_.split('.')) + (None,)
                             result = json.dumps(
                                 {"code": 200, "data": config.read(config_query)})
                         except Exception("configQueryError"):
@@ -61,6 +63,7 @@ async def process_request(path: str, request_headers):
 
                     elif method == 'update':
                         try:
+                            config_query = tuple(id_.split('.'))
                             config.write(config_query, value)
                             result = json.dumps(
                                 {"code": 200, "data": {"id": id_, "value": value}})

@@ -121,8 +121,41 @@ class SettingsIcon extends React.Component {
         this.setState({ hideDialog: true });
     };
 
-    onSubmit = ({ formData }, e) => console.log("Data submitted: ", formData);
-    ingame_onSubmit = ({ formData }, e) => console.log("Data submitted: ", formData);
+    JSONflatter = (jsonData, parent) => {
+        let options = []
+        function parseJsonRec(jsonData, parent, options) {
+            if (parent === null) {
+                parent = ''
+            } else {
+                parent = parent + '.'
+            }
+            if (Object.keys(jsonData).length > 0) {
+                Object.keys(jsonData).map(subKey => {
+                    if (typeof jsonData[subKey] == 'object') {
+                        parseJsonRec(jsonData[subKey], parent + subKey, options)
+                    } else {
+                        options.push({ 'key': parent + subKey, 'value': jsonData[subKey] })
+                    }
+                });
+            }
+        }
+        parseJsonRec(jsonData, parent, options)
+        return options
+    }
+
+    configSync = (JSONflatted) => {
+        JSONflatted.map(item => {
+            fetch(`/api/config?id=${item.key}&method=update&value=${item.value}`)
+        })
+    }
+
+    config_onChange = ({ formData }, e) => {
+        this.configSync(this.JSONflatter(formData, null))
+    };
+
+    ingame_onChange = ({ formData }, e) => {
+        this.configSync(this.JSONflatter(formData, 'ingame'))
+    };
 
     render() {
         const _items = [{
@@ -164,22 +197,20 @@ class SettingsIcon extends React.Component {
                     }}
                     modalProps={{
                         isBlocking: false,
-                        styles: { main: { maxWidth: 450 } }
+                        styles: { main: { maxWidth: 500 } }
                     }}
                 >
-                    <JsonSchemaForm schema={this.state.ingame_schema} formData={this.state.ingame_config} onSubmit={this.ingame_onSubmit.bind()}>
-                        {/* <div>
-                        </div> */}
+                    <JsonSchemaForm schema={this.state.ingame_schema} formData={this.state.ingame_config} onChange={this.ingame_onChange.bind()}>
+                        <div></div>
                     </JsonSchemaForm>
                     <DialogFooter>
-                        <PrimaryButton onClick={this._closeDialog} text="Ready to Go" />
                         <DefaultButton onClick={this._closeDialog} text="Cancel" />
+                        <PrimaryButton onClick={this._closeDialog} text="Ready to Go" />
                     </DialogFooter>
                 </Dialog>
                 <Panel isLightDismiss headerText='Settings' type={PanelType.large} isOpen={this.state.isOpen} onDismiss={this.dismissPanel.bind()} closeButtonAriaLabel='close'>
-                    <JsonSchemaForm schema={this.state.schema} formData={this.state.config} onSubmit={this.onSubmit.bind()}>
-                        {/* <div>
-                        </div> */}
+                    <JsonSchemaForm schema={this.state.schema} formData={this.state.config} onChange={this.config_onChange.bind()}>
+                        <div></div>
                     </JsonSchemaForm>
                 </Panel>
             </div>

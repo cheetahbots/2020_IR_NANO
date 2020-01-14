@@ -70,18 +70,12 @@ class configHandler():
         sec, opt = secOpt
         val = str(val)
         if self.__config.has_option(sec, opt):
-            __config_ = self.__config
-            __config_.set(sec, opt, val)
-            if Schema(self.__schema).is_valid(self.__config_):
-                self.__config.set(sec, opt, val)
-                if permanent:
-                    self.__configPerm.set(sec, opt, val)
-                    with open(self.__filename, 'w') as configfile:
-                        self.__configPerm.write(configfile)
-                return True
-            else:
-                raise Exception('configSchemaError')
+            self.__config.set(sec, opt, val)
+            if permanent:
+                self.__configPerm.set(sec, opt, val)
+                with open(self.__filename, 'w') as configfile:
+                    self.__configPerm.write(configfile)
+            return True
         raise Exception('configQueryError')
-
 
 config = configHandler()
