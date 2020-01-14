@@ -35,8 +35,9 @@ class ThreadHandler(Activatable):
         self.log('begin thread execution')
         tasks = list()
         tasks.append(self.son.run())
+        loop = asyncio.get_event_loop()
         for future in self.futures:
-            tasks.append(asyncio.create_task(future))
+            tasks.append(loop.create_task(future))
         for task in tasks:
             await task
 

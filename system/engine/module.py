@@ -36,8 +36,9 @@ class reactiveInput():
         outputs = list()
         # 向每一个上级节点请求数据
         tasks = list()
+        loop = asyncio.get_event_loop()
         for future in [i.run() for i in self.__input]:
-            tasks.append(asyncio.create_task(future))
+            tasks.append(loop.create_task(future))
         for task in tasks:
             outputs.append(await task)
         return outputs

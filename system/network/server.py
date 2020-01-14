@@ -5,11 +5,11 @@ from typing import Optional, Union
 
 import websockets
 
-import Lib.configparser as cookieparser
-import Lib.http as http
-import Lib.mimetypes as mimetypes
-import Lib.re as re
-import Lib.urllib.parse as urlparse
+import configparser as cookieparser
+import http as http
+import mimetypes as mimetypes
+import re as re
+import urllib.parse as urlparse
 from src.map import sensor_signal, signal_CAN
 from system import config
 
@@ -49,10 +49,10 @@ async def process_request(path: str, request_headers):
                         'id')[0] is not None else ''
                     value = querys.get('value')[0] if querys.get(
                         'value') is not None else ''
-                    
+
                     if method == 'get':
                         try:
-                            if id_=='DEFAULT':
+                            if id_ == 'DEFAULT':
                                 config_query = tuple('DEFAULT')
                             else:
                                 config_query = tuple(id_.split('.')) + (None,)
@@ -80,8 +80,9 @@ async def process_request(path: str, request_headers):
                     querys = urlparse.parse_qs(path.split('?')[1])
                     id_ = querys.get('id')[0] if querys.get(
                         'id')[0] is not None else ''
-                    result = '{"code": 200, "data": '+config.read_json_schema(id_)+'}'
-                        
+                    result = '{"code": 200, "data": ' + \
+                        config.read_json_schema(id_)+'}'
+
                 return http.HTTPStatus.OK, [('content-type', 'application/json')], result.encode('ascii')
             except:
                 return http.HTTPStatus.INTERNAL_SERVER_ERROR, [('content-type', 'text/html')], b'{"code":"500"}'
