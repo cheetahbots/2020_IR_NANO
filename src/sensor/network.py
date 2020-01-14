@@ -1,8 +1,14 @@
+import os
+
+import pexpect
 from networktables import NetworkTables
 from networktables.networktable import NetworkTable
-from ..default import ModuleDynamic
-from ..map import signal_CAN
-from ..map import sensor_signal
+
+from system.config import config
+
+from ..default import ModuleDynamic, time
+from ..map import sensor_signal, signal_CAN
+
 # DOC: https://pynetworktables.readthedocs.io/en/latest/api.html#networktables.NetworkTable.getBoolean
 #! pip install pynetworktables
 
@@ -72,3 +78,33 @@ def appendData(key, data, table: NetworkTable):
     else:
         table.putValue(key, data)
     return True
+
+
+class WifiHandler(ModuleDynamic):
+    def __init__(self):
+        ModuleDynamic.__init__(self)
+
+    async def initialize(self):
+        if config.read(('environment', 'platform')) == 'linux':
+            return True
+        else:
+            return False
+
+    def run(self):
+        await self.sleep(5)
+        SSID = os.popen("iwconfig wlan0 \
+                    | grep 'ESSID' \
+                    | awk '{print $4}' \
+                    | awk -F\\\" '{print $2}'").read()
+        if SSID.find('8015') == -1:
+            p = pexpect.spawn("sudo /etc/init.d/network-manager restart")
+            try:
+                if p.expect([pexpect.TIMEOUT, 'password']):
+                    p.sendline('cjsnb')
+            except:
+                pass
+            try:
+                p.expect([pexpect.TIMEOUT, pexpect.EOF])
+            except:
+                pass
+            # time.sleep(5)
