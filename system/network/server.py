@@ -73,8 +73,12 @@ async def process_request(path: str, request_headers):
                             raise
 
                 if(re.search("/api/schema.*", path)):
-                    result = '{"code": 200, "data": '+config.read_json_schema()+'}'
-
+                    # default id 'DEFAULT'
+                    querys = urlparse.parse_qs(path.split('?')[1])
+                    id_ = querys.get('id')[0] if querys.get(
+                        'id')[0] is not None else ''
+                    result = '{"code": 200, "data": '+config.read_json_schema(id_)+'}'
+                        
                 return http.HTTPStatus.OK, [('content-type', 'application/json')], result.encode('ascii')
             except:
                 return http.HTTPStatus.INTERNAL_SERVER_ERROR, [('content-type', 'text/html')], b'{"code":"500"}'

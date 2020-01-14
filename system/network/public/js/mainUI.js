@@ -72,7 +72,12 @@ class SettingsIcon extends React.Component {
                 title: "8015 Definitions",
                 type: "object",
             },
-            config: {}
+            config: {},
+            ingame_schema: {
+                title: "8015 Definitions",
+                type: "object",
+            },
+            ingame_config: {}
         }
 
     }
@@ -83,10 +88,20 @@ class SettingsIcon extends React.Component {
             .then((data) => {
                 this.setState({ config: data.data });
             });
-        fetch(`/api/schema`)
+        fetch(`/api/schema?id=DEFAULT`)
             .then((response) => { return response.json() })
             .then((data) => {
                 this.setState({ schema: data.data });
+            });
+        fetch(`/api/config?id=ingame&method=get&value=`)
+            .then((response) => { return response.json() })
+            .then((data) => {
+                this.setState({ ingame_config: data.data });
+            });
+        fetch(`/api/schema?id=ingame`)
+            .then((response) => { return response.json() })
+            .then((data) => {
+                this.setState({ ingame_schema: data.data });
             });
     }
 
@@ -106,7 +121,8 @@ class SettingsIcon extends React.Component {
         this.setState({ hideDialog: true });
     };
 
-    onSubmit = ({formData}, e) => console.log("Data submitted: ",  formData);
+    onSubmit = ({ formData }, e) => console.log("Data submitted: ", formData);
+    ingame_onSubmit = ({ formData }, e) => console.log("Data submitted: ", formData);
 
     render() {
         const _items = [{
@@ -151,56 +167,10 @@ class SettingsIcon extends React.Component {
                         styles: { main: { maxWidth: 450 } }
                     }}
                 >
-                    <ChoiceGroup
-                        label="Pick one"
-                        options={[
-                            {
-                                key: 'A',
-                                text: 'Option A'
-                            },
-                            {
-                                key: 'B',
-                                text: 'Option B',
-                                checked: true
-                            },
-                            {
-                                key: 'C',
-                                text: 'Option C',
-                            }
-                        ]}
-                    />
-                    <TextField label='TEST'></TextField>
-                    <Slider
-                        label="Snapping slider example"
-                        min={0}
-                        max={50}
-                        step={10}
-                        defaultValue={20}
-                        showValue={true}
-                        onChange={(value) => console.log(value)}
-                        snapToStep
-                    />
-                    <SpinButton
-                        defaultValue="0"
-                        label={'Basic SpinButton:'}
-                        min={0}
-                        max={100}
-                        step={1}
-                        iconProps={{ iconName: 'IncreaseIndentLegacy' }}
-                        // tslint:disable:jsx-no-lambda
-                        onFocus={() => console.log('onFocus called')}
-                        onBlur={() => console.log('onBlur called')}
-                        incrementButtonAriaLabel={'Increase value by 1'}
-                        decrementButtonAriaLabel={'Decrease value by 1'}
-                    />
-                    <Toggle label="Enabled and checked" defaultChecked onText="On" offText="Off"
-                    />
-                    <Stack>
-                        <Checkbox label="Unchecked checkbox (uncontrolled)" />
-                        <Checkbox label="Checked checkbox (uncontrolled)" defaultChecked />
-                        <Checkbox label="Disabled checkbox" disabled />
-                        <Checkbox label="Disabled checked checkbox" disabled defaultChecked />
-                    </Stack>
+                    <JsonSchemaForm schema={this.state.ingame_schema} formData={this.state.ingame_config} onSubmit={this.ingame_onSubmit.bind()}>
+                        {/* <div>
+                        </div> */}
+                    </JsonSchemaForm>
                     <DialogFooter>
                         <PrimaryButton onClick={this._closeDialog} text="Ready to Go" />
                         <DefaultButton onClick={this._closeDialog} text="Cancel" />

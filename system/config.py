@@ -56,9 +56,11 @@ class configHandler():
             print(e)
         return validated
 
-    def read_json_schema(self):
-        # print(self.__schema)
-        s = Schema(self.__schema_json, description="8015 Definitions")
+    def read_json_schema(self,sec):
+        if sec == 'DEFAULT':
+            s = Schema(self.__schema_json, description="8015 Definitions")
+        else:
+            s = Schema(self.__schema_json[sec], description="8015 Definitions")
         json_schema = json.dumps(s.json_schema(
             "https://example.com/my-schema.json"))
         return json_schema
